@@ -255,7 +255,7 @@ export default function SuperAdmin() {
         gender: member.gender, age: member.age, phone: member.phone,
         area: member.area, joinedAt: member.joined_at,
       })));
-      const t = localStorage.getItem("zoe_theme") as "dark"|"light" || "light";
+      const t = user.user_metadata.dashboard_theme === "dark" ? "dark" : "light";
       setTheme(t);
       const otherLoadErrors = await refreshData();
       const loadErrors = [
@@ -270,11 +270,8 @@ export default function SuperAdmin() {
     return () => { active = false; };
   }, [router, refreshData, revision]);
 
-  const toggleTheme = () => {
-    const nt = theme === "dark"? "light" : "dark";
-    setTheme(nt);
-    localStorage.setItem("zoe_theme", nt);
-  };
+  const [themeSaving,setThemeSaving]=useState(false);
+  const toggleTheme = async () => {if(themeSaving)return;setThemeSaving(true);try{const nt=theme==="dark"?"light":"dark";const {error}=await createClient().auth.updateUser({data:{dashboard_theme:nt}});if(error)throw error;setTheme(nt);}catch{setActivityNotice("Your display preference could not be saved. Please try again.");}finally{setThemeSaving(false);}};
 
   const openCellDetails = async (cell: Cell) => {
     setProvisionError("");
@@ -614,7 +611,7 @@ export default function SuperAdmin() {
               <Link href="/super-admin/reports" className="block w-full text-left bg-green-700 text-white p-4 rounded-2xl text-sm font-bold">Reports &amp; backups</Link>
               <button onClick={()=>{setMenuOpen(false); router.push("/super-admin/website");}} className="w-full text-left bg-[#222] text-white p-4 rounded-2xl text-sm font-bold"> Website management</button>
               <button onClick={()=>{setShowCellsDetail(true); setMenuOpen(false);}} className="w-full text-left bg-[#cc0000] text-white p-4 rounded-2xl text-sm font-bold"> Cell directory</button>
-              <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-3"> Theme</p><button onClick={toggleTheme} className="w-full bg-[#222] text-white py-3 rounded-full text-xs font-bold">{theme==="dark"?" Light Mode":" Dark Mode"}</button></div>
+              <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-3"> Theme</p><button onClick={toggleTheme} disabled={themeSaving} className="w-full bg-[#222] text-white py-3 rounded-full text-xs font-bold">{theme==="dark"?" Light Mode":" Dark Mode"}</button></div>
               <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-1">Cell Archive</p><p className="text-[10px] text-gray-400 mb-3">Archive hides a cell from the public directory and keeps its records. You can restore it later.</p><button onClick={()=>{setShowDeleteManager(!showDeleteManager); setShowSettings(false);}} className="w-full bg-red-900/30 text-red-300 py-3 rounded-full text-xs font-bold border border-red-900/50">{showDeleteManager?"Hide":"Manage Cell Archive"}</button>{showDeleteManager && (<div className="mt-4 space-y-2 max-h-[300px] overflow-auto">{cells.map((c)=><div key={c.id} className="bg-[#151515] p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px] text-white"><span>{c.name}{!c.isActive && <span className="ml-2 text-yellow-300">Archived</span>}</span><button disabled={changingCellId === c.id} onClick={()=>void setCellActive(c)} className="bg-red-900/70 disabled:opacity-50 px-3 py-1 rounded-full text-[9px]">{changingCellId === c.id ? "Saving…" : c.isActive ? "Archive" : "Restore"}</button></div>)}</div>)}</div>
               <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-3"> Settings</p><button onClick={()=>{setShowSettings(!showSettings); setShowDeleteManager(false);}} className="w-full bg-[#222] text-white py-3 rounded-full text-xs font-bold">Change Password</button>{showSettings && (<div className="mt-4 space-y-2"><input type="password" placeholder="New Password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} className="w-full bg-[#151515] border border-[#222] p-3 rounded-full text-xs text-white outline-none"/><input type="password" placeholder="Confirm" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} className="w-full bg-[#151515] border border-[#222] p-3 rounded-full text-xs text-white outline-none"/><button onClick={changePassword} className="w-full bg-[#cc0000] py-3 rounded-full text-xs font-bold text-white">Update</button></div>)}</div>
               <form action="/api/auth/logout" method="post">

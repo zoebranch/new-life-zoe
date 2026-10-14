@@ -2,7 +2,7 @@
 import "./dashboard.css";
 import {fetchAllRows} from "@/lib/fetch-all-rows";
 import {useDashboardRefresh} from "@/lib/use-dashboard-refresh";
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import { hasEvangelismActivity, mapReportDetails, type ReportDetails, emptyDetailedForm } from "@/lib/report-details";
 import { CellReportGenerator } from "@/components/cell-report-generator";
 import { isValidOffering } from "@/lib/report-validation";
@@ -90,17 +90,6 @@ function localDateInputValue() {
 }
 
 
-let sessionTheme: "light" | "dark" | null=null;
-function readDashboardTheme(): "light" | "dark" {
-  try {const saved=localStorage.getItem("zoe-cell-dashboard-theme");if(saved==="light"||saved==="dark")return saved;} catch {/* Use device preference. */}
-  return sessionTheme ?? (window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
-}
-function subscribeDashboardTheme(listener:()=>void){
-  const preference=window.matchMedia("(prefers-color-scheme: dark)");
-  preference.addEventListener("change",listener);window.addEventListener("storage",listener);window.addEventListener("zoe-theme-change",listener);
-  return()=>{preference.removeEventListener("change",listener);window.removeEventListener("storage",listener);window.removeEventListener("zoe-theme-change",listener);};
-}
-
 export default function CellAdmin() {
  const revision=useDashboardRefresh();
   const router = useRouter();
@@ -112,8 +101,9 @@ export default function CellAdmin() {
   const [form, setForm] = useState({ name:"", gender:"Male", age:"", phone:"", area:"" });
   const [attForm, setAttForm] = useState({ date: localDateInputValue(), evangelismDate: localDateInputValue(), attendance:"", visitors:"", soulsWon:"", peopleReached:"", tracts:"", teamCount:"", contacts:"", offeringAmount:"", evangelismNotes:"" });
   const [detailedForm,setDetailedForm] = useState(emptyDetailedForm);
-  const dashboardTheme=useSyncExternalStore(subscribeDashboardTheme,readDashboardTheme,()=>"light");
-  function toggleDashboardTheme(){const next=dashboardTheme==="light"?"dark":"light";sessionTheme=next;try {localStorage.setItem("zoe-cell-dashboard-theme",next);} catch {/* Theme still works for this visit. */}window.dispatchEvent(new Event("zoe-theme-change"));}
+  const [dashboardTheme,setDashboardTheme]=useState<"light"|"dark">("light");
+  const [themeSaving,setThemeSaving]=useState(false);
+  async function toggleDashboardTheme(){if(themeSaving)return;setThemeSaving(true);try{const next=dashboardTheme==="light"?"dark":"light";const {error}=await createClient().auth.updateUser({data:{dashboard_theme:next}});if(error)throw error;setDashboardTheme(next);}catch{setReportError("Your display preference could not be saved. Please try again.");}finally{setThemeSaving(false);}}
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPass, setNewPass] = useState("");
@@ -138,6 +128,7 @@ export default function CellAdmin() {
       if (error || profile?.is_suspended || profile?.role !== "cell_leader" || profile.cell_id == null) {
         router.replace("/leaders"); return;
       }
+      if(active)setDashboardTheme(user.user_metadata.dashboard_theme==="dark"?"dark":"light");
       const admin = { ...profile, cellId: Number(profile.cell_id), role: profile.role } as CellLeaderAuth;
       const [requestsResult, membersResult, cellResult, attendanceResult, evangelismResult] = await Promise.all([
         fetchAllRows((from,to) => supabase.from("member_join_requests")
@@ -415,7 +406,7 @@ export default function CellAdmin() {
 
   return (
     <div className="cell-leader-dashboard" data-theme={dashboardTheme}>
-      <header className="fixed top-0 w-full z-50 bg-white/95 h-[64px] flex items-center border-b"><div className="w-full px-5 flex justify-between"><div className="flex items-center gap-3"><SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="Zoe Church" width={42} height={42} className="w-[42px] h-[42px] rounded-full"/><p className="font-black text-[12px]">ZOE - CELL LEADER</p></div><div className="cell-header-actions"><button type="button" onClick={toggleDashboardTheme} className="cell-theme-toggle" aria-label={`Switch to ${dashboardTheme === "light" ? "dark" : "light"} mode`} title={`Switch to ${dashboardTheme === "light" ? "dark" : "light"} mode`}><span aria-hidden="true">{dashboardTheme === "light" ? "☾" : "☀"}</span><span>{dashboardTheme === "light" ? "Dark mode" : "Light mode"}</span></button><button aria-label="Account menu" aria-expanded={menuOpen} onClick={()=>setMenuOpen(!menuOpen)} className="w-10 h-10 flex flex-col gap-[5px] justify-center"><span className="w-6 h-[2px] bg-black block"/><span className="w-6 h-[2px] bg-black block"/><span className="w-6 h-[2px] bg-black block"/></button></div></div></header>
+      <header className="fixed top-0 w-full z-50 bg-white/95 h-[64px] flex items-center border-b"><div className="w-full px-5 flex justify-between"><div className="flex items-center gap-3"><SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="Zoe Church" width={42} height={42} className="w-[42px] h-[42px] rounded-full"/><p className="font-black text-[12px]">ZOE - CELL LEADER</p></div><div className="cell-header-actions"><button type="button" onClick={toggleDashboardTheme} disabled={themeSaving} className="cell-theme-toggle" aria-label={`Switch to ${dashboardTheme === "light" ? "dark" : "light"} mode`} title={`Switch to ${dashboardTheme === "light" ? "dark" : "light"} mode`}><span aria-hidden="true">{dashboardTheme === "light" ? "☾" : "☀"}</span><span>{dashboardTheme === "light" ? "Dark mode" : "Light mode"}</span></button><button aria-label="Account menu" aria-expanded={menuOpen} onClick={()=>setMenuOpen(!menuOpen)} className="w-10 h-10 flex flex-col gap-[5px] justify-center"><span className="w-6 h-[2px] bg-black block"/><span className="w-6 h-[2px] bg-black block"/><span className="w-6 h-[2px] bg-black block"/></button></div></div></header>
       {menuOpen && (<div className="fixed inset-0 z-[60] bg-black/90 pt-[80px]"><div className="w-full max-w-sm ml-auto h-full bg-[#151515] border-l border-[#222] p-6 flex flex-col"><button onClick={()=>setMenuOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white mb-6">✕</button><div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4 mb-4"><p className="text-[10px] text-gray-500 font-bold">LOGGED IN AS</p><p className="font-black text-sm mt-1">{auth.username}</p><p className="text-xs text-gray-400">{myCell?.name}</p></div><button onClick={()=>{setShowPasswordModal(true); setMenuOpen(false);}} className="w-full bg-[#222] border border-[#333] text-white py-3 rounded-full text-xs font-bold mb-3">🔑 Change Password</button><form action="/api/auth/logout" method="post" className="mt-auto"><button type="submit" className="w-full bg-white text-black py-3 rounded-full text-xs font-bold">Logout</button></form></div></div>)}
 
       <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pt-[80px]"><div className="max-w-6xl mx-auto">
