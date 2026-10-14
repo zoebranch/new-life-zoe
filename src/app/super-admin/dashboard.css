@@ -1,0 +1,93 @@
+.super-admin-shell {
+  --admin-bg: #f5f6f8;
+  --admin-surface: #fff;
+  --admin-field: #fafbfc;
+  --admin-text: #172235;
+  --admin-muted: #647084;
+  --admin-border: #e3e7ed;
+  color: var(--admin-text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.super-admin-shell[data-theme="dark"] {
+  --admin-bg: #10151e;
+  --admin-surface: #181f2b;
+  --admin-field: #121925;
+  --admin-text: #eef2f8;
+  --admin-muted: #a6b0c1;
+  --admin-border: #2c3545;
+}
+.super-admin-shell > .min-h-screen { background: var(--admin-bg); color: var(--admin-text); padding-top: 100px; padding-bottom: 60px; }
+.super-admin-shell .max-w-6xl { max-width: 1280px; }
+.super-admin-shell section, .super-admin-shell article { border-radius: 16px; }
+.super-admin-shell section.border, .super-admin-shell article.border,
+.super-admin-shell > .min-h-screen div.border,
+.super-admin-shell form.border { border-color: var(--admin-border); background-color: var(--admin-surface); }
+.super-admin-shell h1, .super-admin-shell h2, .super-admin-shell h3 { letter-spacing: -.025em; }
+.super-admin-shell h2 { font-size: 17px; font-weight: 650; }
+.super-admin-shell h3 { font-size: 13px; font-weight: 650; }
+.super-admin-shell .text-gray-300, .super-admin-shell .text-gray-400, .super-admin-shell .text-gray-500 { color: var(--admin-muted); }
+.super-admin-shell .text-xs { font-size: 13px; }
+.super-admin-shell .text-\[10px\], .super-admin-shell .text-\[11px\], .super-admin-shell .text-\[9px\] { font-size: 12px; }
+.super-admin-shell input, .super-admin-shell select {
+  min-height: 44px;
+  border: 1px solid var(--admin-border);
+  border-radius: 9px;
+  background: var(--admin-field);
+  color: var(--admin-text);
+  padding: 10px 13px;
+  font-size: 14px;
+}
+.super-admin-shell input::placeholder { color: var(--admin-muted); }
+.super-admin-shell button { cursor: pointer; }
+.super-admin-shell button:disabled { cursor: wait; }
+.super-admin-shell button:focus-visible, .super-admin-shell a:focus-visible,
+.super-admin-shell input:focus-visible, .super-admin-shell select:focus-visible { outline: 3px solid #d6444460; outline-offset: 3px; }
+.super-admin-shell header { height: 72px; box-shadow: 0 1px 8px #15223805; }
+.super-admin-shell header > div { max-width: 1360px; margin: auto; }
+.admin-page-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 30px; }
+.admin-eyebrow { color: #b7202c; font-size: 11px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; margin-bottom: 7px; }
+.admin-page-heading h1 { font-size: clamp(25px, 3vw, 34px); font-weight: 700; line-height: 1.2; }
+.admin-description { color: var(--admin-muted); margin-top: 10px; font-size: 14px; }
+.admin-quick-actions, .admin-toolbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.admin-primary-link, .admin-secondary-link { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 44px; padding: 10px 17px; border-radius: 9px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.admin-primary-link { background: #bd2330; color: #fff; border: 1px solid #bd2330; }
+.admin-primary-link:hover { background: #a41d28; }
+.admin-secondary-link { border: 1px solid var(--admin-border); background: var(--admin-surface); color: var(--admin-text); }
+.admin-secondary-link:hover { border-color: var(--admin-muted); }
+.admin-navigation { display: flex; gap: 5px; margin-bottom: 28px; border-bottom: 1px solid var(--admin-border); overflow-x: auto; }
+.admin-navigation button { border-bottom: 2px solid transparent; padding: 13px 19px; white-space: nowrap; color: var(--admin-muted); font-size: 14px; font-weight: 550; }
+.admin-navigation button:hover { color: var(--admin-text); }
+.admin-navigation button[aria-current="page"] { border-bottom-color: #bd2330; color: var(--admin-text); font-weight: 650; }
+.admin-count { display: inline-block; margin-left: 8px; background: #bd233015; color: #bd2330; border-radius: 5px; padding: 0 6px; font-size: 11px; }
+.super-admin-shell .admin-metric-value { color: var(--admin-text); font-size: 36px; font-weight: 650; letter-spacing: -.05em; }
+.super-admin-shell [aria-label="Church operations summary"] article { padding: 23px; background: var(--admin-surface); box-shadow: 0 2px 5px #15223803; }
+.super-admin-shell [aria-label="Church operations summary"] article > p:first-child { letter-spacing: .035em; font-size: 11px; }
+.super-admin-shell section[aria-labelledby="attention-heading"] { border-left: 3px solid #bd2330; }
+.admin-section-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+.admin-section-toolbar h2 { font-size: 21px; }
+.admin-section-toolbar p { color: var(--admin-muted); font-size: 13px; margin-top: 4px; }
+.admin-toolbar-actions input { width: 260px; }
+.super-admin-shell #leader-access-section > div:last-child { max-height: none; }
+.super-admin-shell .rounded-full:not(header *) { border-radius: 9px; }
+.super-admin-shell [role="dialog"] { color: var(--admin-text); }
+.super-admin-shell [role="dialog"] form { max-height: 90vh; overflow-y: auto; padding: 28px; }
+.super-admin-shell[data-theme="light"] p.text-amber-200,
+.super-admin-shell[data-theme="light"] p.text-yellow-200 { color: #92400e; }
+.super-admin-shell[data-theme="light"] p.text-green-200,
+.super-admin-shell[data-theme="light"] h2.text-green-200 { color: #166534; }
+.super-admin-shell[data-theme="light"] p.text-red-300 { color: #b91c1c; }
+.super-admin-shell[data-theme="light"] .text-blue-200:not(button) { color: #1d4ed8; }
+.super-admin-shell [aria-label="Church operations summary"] { margin-bottom: 24px; }
+.super-admin-shell .admin-cell-row { width: 100%; text-align: left; }
+@media (max-width: 760px) {
+  .super-admin-shell > .min-h-screen { padding: 94px 18px 40px; }
+  .admin-page-heading, .admin-section-toolbar { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .admin-quick-actions { width: 100%; }
+  .admin-quick-actions a { flex: 1; }
+  .admin-navigation { margin-bottom: 22px; }
+  .admin-navigation button { padding: 12px 14px; font-size: 13px; }
+  .admin-toolbar-actions { width: 100%; }
+  .admin-toolbar-actions input { width: 100%; }
+  .super-admin-shell [aria-label="Church operations summary"] article { padding: 17px; }
+}
