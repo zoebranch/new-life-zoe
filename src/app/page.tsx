@@ -9,9 +9,13 @@ import { useSiteSettings } from "@/lib/use-site-settings";
 import "./home.css";
 import "./inspired-home.css";
 import "./church-care.css";
+import "./monthly-theme.css";
+import "./animated-cards.css";
+import "./home-responsive.css";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [careOpen, setCareOpen] = useState(false);
   const settings = useSiteSettings();
   const closeMenu = () => setMenuOpen(false);
   return <main className="zoe-home zoe-inspired">
@@ -58,13 +62,14 @@ export default function Home() {
     <PublicSiteContent />
     <HomeMinistries />
     <section id="church-care" className="home-section home-church-care" aria-labelledby="church-care-heading"><div className="home-wrap">
-      <div className="home-section-heading"><div><p className="home-eyebrow">FOR OUR CHURCH MEMBERS</p><h2 id="church-care-heading">Prayer &amp; Church Care</h2></div><p>We’re here for one another. Share a prayer request, family news, or a need for support with the church care team.</p></div>
+      <div className="home-section-heading"><div><p className="home-eyebrow">FOR OUR CHURCH MEMBERS</p><h2 id="church-care-heading">Prayer &amp; Church Care</h2></div><button type="button" className="home-expand-button" aria-expanded={careOpen} aria-controls="homepage-care-options" onClick={()=>setCareOpen(value=>!value)}>{careOpen ? "Hide care options −" : "Open church care +"}</button></div>
+      <div id="homepage-care-options" hidden={!careOpen}>
       <div className="home-care-grid">
         <Link href="/care?request=prayer" className="home-care-card"><span className="home-care-number" aria-hidden="true">01</span><h3>Request prayer</h3><p>Share a private prayer request. You may remain anonymous.</p><span className="home-care-action">Send a prayer request <span aria-hidden="true">↗</span></span></Link>
         <Link href="/care?request=bereavement" className="home-care-card"><span className="home-care-number" aria-hidden="true">02</span><h3>Report a bereavement</h3><p>Let us know about a loss so the church can offer support.</p><span className="home-care-action">Contact the care team <span aria-hidden="true">↗</span></span></Link>
         <Link href="/care?request=newborn" className="home-care-card"><span className="home-care-number" aria-hidden="true">03</span><h3>Welcome a newborn</h3><p>Share the good news and discuss a church announcement.</p><span className="home-care-action">Share family news <span aria-hidden="true">↗</span></span></Link>
         <Link href="/care?request=hospital" className="home-care-card"><span className="home-care-number" aria-hidden="true">04</span><h3>Hospital admission</h3><p>Let us know someone needs prayer, a visit, or practical support.</p><span className="home-care-action">Request church support <span aria-hidden="true">↗</span></span></Link>
-      </div><p className="home-care-private">Your submission is private. Nothing is published automatically, and no account is needed.</p>
+      </div><p className="home-care-private">Your submission is private. Nothing is published automatically, and no account is needed.</p></div>
     </div></section>
     <section id="evangelism" className="home-section home-mission">
       <div className="home-wrap home-mission-inner"><div><p className="home-eyebrow">{settings.homepage_copy.mission_eyebrow}</p><h2>{settings.homepage_copy.mission_heading}</h2></div><div><p>{settings.homepage_copy.mission_intro}</p><Link href="/cells" className="home-button home-button-red">{settings.homepage_copy.mission_button} <span aria-hidden="true">→</span></Link></div></div>

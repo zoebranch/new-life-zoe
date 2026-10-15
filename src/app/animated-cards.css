@@ -1,0 +1,14 @@
+.home-expand-button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:14px 24px;background:#ab243f;border:1px solid #ab243f;border-radius:999px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.home-expand-button:hover{background:#8b1c32}
+.home-expand-button[aria-expanded=true]{background:#3f3048;border-color:#3f3048}
+#homepage-care-options[hidden],#homepage-ministry-options[hidden]{display:none}
+#homepage-ministry-options>.ministry-guidance:first-child{margin:0 0 24px}
+.zoe-inspired :is(.home-care-card,.ministry-card){background:linear-gradient(125deg,rgba(255,255,255,.08),transparent 65%),rgba(79,28,48,.94);color:#fff;border-color:rgba(255,255,255,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:monthly-colours 28s ease-in-out infinite;box-shadow:0 10px 28px rgba(35,26,45,.1)}
+.zoe-inspired :is(.home-care-card,.ministry-card):nth-child(2n){animation-delay:-9s}
+.zoe-inspired :is(.home-care-card,.ministry-card):nth-child(3n){animation-delay:-18s}
+.zoe-inspired .home-care-card :is(h3,p,.home-care-number,.home-care-action),.zoe-inspired .ministry-card :is(h3,p,.ministry-number){color:#fff}
+.zoe-inspired .home-care-action{border-color:rgba(255,255,255,.3)}
+.zoe-inspired .ministry-card .ministry-join{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.4)}
+.zoe-inspired .ministry-card .ministry-join:hover{background:rgba(255,255,255,.25)}
+@media(max-width:600px){.home-expand-button{width:100%;white-space:normal}.home-church-care,.home-ministries{padding-top:32px;padding-bottom:32px}}
+@media(prefers-reduced-motion:reduce){.zoe-inspired :is(.home-care-card,.ministry-card){animation:none}}

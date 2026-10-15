@@ -28,6 +28,7 @@ export default function PublicSiteContent() {
   const [items, setItems] = useState<PublishedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     let active = true;
     async function load() {
@@ -67,7 +68,7 @@ export default function PublicSiteContent() {
 
   return <>
     <section id="monthly-theme" className="home-monthly-text" aria-labelledby="monthly-theme-title">
-      <div className="home-wrap"><div className="home-monthly-panel"><div className="home-monthly-heading"><p className="home-eyebrow">OUR FOCUS THIS MONTH</p><span>{new Date(`${month}-02T12:00:00`).toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</span></div><div className="home-monthly-columns"><div className="home-monthly-message"><span className="home-monthly-rule" aria-hidden="true"/><p className="home-monthly-label">Theme of the month</p><h2 id="monthly-theme-title">{theme?.title ?? "Growing in the Word, together."}</h2></div><aside className="home-monthly-scripture" aria-label="Scripture for the month"><span className="home-scripture-mark" aria-hidden="true">“</span><p className="home-eyebrow">SCRIPTURE FOR THE MONTH</p>{theme?.description ? <blockquote>{theme.description}</blockquote> : <p className="home-scripture-pending">The monthly scripture will be shared here.</p>}</aside></div></div></div>
+      <div className="home-wrap"><div className="home-monthly-panel"><div className="home-monthly-heading"><p className="home-eyebrow">OUR FOCUS THIS MONTH</p><div className="monthly-heading-actions"><time dateTime={month}>{new Date(`${month}-02T12:00:00`).toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</time></div></div><div className="home-monthly-columns"><div className="home-monthly-message"><span className="home-monthly-rule" aria-hidden="true"/><p className="home-monthly-label">Theme of the month</p><h2 id="monthly-theme-title">{theme?.title ?? "Growing in the Word, together."}</h2></div><aside className="home-monthly-scripture" aria-label="Scripture for the month"><span className="home-scripture-mark" aria-hidden="true">“</span><p className="home-eyebrow">SCRIPTURE FOR THE MONTH</p>{theme?.description ? <blockquote>{theme.description}</blockquote> : <p className="home-scripture-pending">The monthly scripture will be shared here.</p>}</aside></div></div></div>
     </section>
     <section id="announcements" className="home-section home-updates">
       <div className="home-wrap">

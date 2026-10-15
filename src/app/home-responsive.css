@@ -1,0 +1,67 @@
+/* A soft halo preserves the existing event artwork and colours. */
+.zoe-inspired .home-event .inspired-event-art,.zoe-inspired .home-event img{
+  box-shadow:0 0 0 1px rgba(180,110,84,.12),0 0 24px rgba(193,123,83,.19);
+  animation:event-halo 7s ease-in-out infinite alternate;
+}
+.zoe-inspired .home-event:nth-child(even) .inspired-event-art,.zoe-inspired .home-event:nth-child(even) img{animation-delay:-3.5s}
+@keyframes event-halo{from{box-shadow:0 0 0 1px rgba(180,110,84,.12),0 0 16px rgba(193,123,83,.14)}to{box-shadow:0 0 0 1px rgba(156,110,144,.2),0 0 28px rgba(172,110,143,.27)}}
+@media(max-width:760px){
+  .zoe-inspired .home-wrap{padding-inline:clamp(16px,4.3vw,28px)}
+  .zoe-inspired .home-section{padding-block:clamp(30px,7vw,48px)}
+  .zoe-inspired .home-section-heading{flex-direction:column;align-items:stretch;gap:16px;margin-bottom:22px}
+  .zoe-inspired h2,.zoe-inspired .home-section-heading h2{font-size:clamp(24px,6.2vw,34px);line-height:1.12}
+  .zoe-inspired .home-section-heading>p,.zoe-inspired .home-recording-intro{font-size:14px;line-height:1.7;max-width:100%}
+  .zoe-inspired .home-hero,.zoe-inspired .home-hero-copy{min-height:0}
+  .zoe-inspired .home-hero-copy{padding:clamp(32px,8vw,52px) clamp(16px,4.3vw,28px)}
+  .zoe-inspired .home-hero h1{font-size:clamp(32px,8.5vw,56px);line-height:1.06;max-width:100%}
+  .zoe-inspired .home-hero-scripture{font-size:clamp(13px,3.4vw,15px);line-height:1.75;margin-top:20px}
+  .zoe-inspired .home-annual-theme{padding:10px 12px;margin-bottom:20px}
+  .zoe-inspired .home-annual-theme h2{font-size:clamp(15px,4.1vw,21px);line-height:1.4}
+  .zoe-inspired .home-actions{gap:14px;margin-top:24px}
+  .zoe-inspired .home-button,.zoe-inspired .home-text-link{font-size:13px;min-height:44px}
+  .zoe-inspired .home-button{padding:12px 18px}
+  .zoe-inspired .home-hero-note{margin-top:18px}
+  .zoe-inspired .home-header-inner{min-height:70px;gap:12px}
+  .zoe-inspired .home-header .home-brand img{width:36px;height:36px}
+  .zoe-inspired .home-header .home-brand{gap:8px;min-width:0}
+  .zoe-inspired .home-header .home-brand strong{font-size:clamp(8px,2.4vw,11px)}
+  .zoe-inspired .home-header .home-brand small{font-size:8px;letter-spacing:.12em}
+  .zoe-inspired .home-menu-toggle{min-height:44px;min-width:44px;font-size:12px}
+  .zoe-inspired .home-service,.zoe-inspired .home-service+.home-service{padding:18px 0}
+  .zoe-inspired .home-service h3{font-size:18px}
+  .zoe-inspired .home-service-time strong{font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+  .zoe-inspired .inspired-visit-layout{gap:22px}
+  .zoe-inspired .welcome-photo-collage{height:clamp(240px,75vw,390px);width:100%;max-width:480px}
+  .zoe-inspired .home-monthly-panel{padding:22px 18px;border-radius:16px}
+  .zoe-inspired .home-monthly-panel .home-monthly-message h2{font-size:clamp(25px,6.6vw,36px);line-height:1.12}
+  .zoe-inspired .home-monthly-columns{gap:22px;margin-top:22px}
+  .zoe-inspired .home-monthly-scripture{padding-top:20px}
+  .zoe-inspired .home-monthly-scripture blockquote{font-size:clamp(16px,4.2vw,21px);line-height:1.65}
+  .zoe-inspired .home-events>h3{font-size:23px}
+  .zoe-inspired .home-event-grid{gap:26px;grid-template-columns:1fr}
+  .zoe-inspired .inspired-event-art{height:clamp(135px,39vw,210px);padding:20px;margin-bottom:16px}
+  .zoe-inspired .inspired-event-art span{font-size:clamp(40px,12vw,65px)}
+  .zoe-inspired .inspired-event-art small{font-size:11px}
+  .zoe-inspired .inspired-event-art b{font-size:72px}
+  .zoe-inspired .home-event-copy h4{font-size:clamp(19px,5vw,24px)}
+  .zoe-inspired .home-event-copy p{font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+  .zoe-inspired .home-event img{width:100%;height:auto;max-height:none}
+  .zoe-inspired .home-care-grid,.zoe-inspired .ministry-grid{gap:14px}
+  .zoe-inspired .home-care-card,.zoe-inspired .ministry-card{padding:20px;min-height:0}
+  .zoe-inspired .home-care-card h3,.zoe-inspired .ministry-card h3{font-size:clamp(21px,5.4vw,27px);margin:16px 0 12px}
+  .zoe-inspired .home-care-card p,.zoe-inspired .ministry-card p{font-size:13px;line-height:1.7;margin-bottom:18px}
+  .zoe-inspired .home-expand-button{width:100%;min-height:44px;padding:12px 18px;font-size:13px}
+  .zoe-inspired .ministry-join{font-size:13px;min-height:44px;padding:12px 16px}
+  .zoe-inspired .home-mission-inner{gap:20px}
+  .zoe-inspired .home-mission-inner p{font-size:14px;line-height:1.7}
+  .zoe-inspired .home-footer{padding-block:34px 20px}
+  .zoe-inspired .home-footer-grid{gap:24px;grid-template-columns:1fr}
+  .zoe-inspired .home-footer-grid p,.zoe-inspired .home-footer-grid a{font-size:13px;overflow-wrap:anywhere}
+  .zoe-inspired .home-footer-bottom{gap:12px;flex-wrap:wrap;font-size:11px}
+  .zoe-inspired .home-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .zoe-inspired .home-recording{padding:18px;min-width:0}
+  .zoe-inspired :is(.home-recording-media,video,audio){max-width:100%}
+  .zoe-inspired :is(.home-monthly-message,.home-events,.home-event-copy,.home-section-heading>div){min-width:0}
+}
+@media(max-width:480px){.zoe-inspired .home-care-grid,.zoe-inspired .ministry-grid{grid-template-columns:1fr}.zoe-inspired .home-header .home-brand strong{max-width:205px}.zoe-inspired .home-eyebrow{font-size:9px;letter-spacing:.12em}}
+@media(prefers-reduced-motion:reduce){.zoe-inspired .home-event .inspired-event-art,.zoe-inspired .home-event img{animation:none}}

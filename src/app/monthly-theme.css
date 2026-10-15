@@ -1,0 +1,32 @@
+.zoe-inspired .home-monthly-panel {
+  isolation: isolate;
+  background: rgba(64, 28, 48, .94);
+  border: 1px solid rgba(255,255,255,.25);
+  box-shadow: 0 16px 42px rgba(42,30,48,.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: monthly-colours 28s ease-in-out infinite;
+}
+.zoe-inspired .home-monthly-panel::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 25% 35%,rgba(190,71,101,.38),transparent 46%),radial-gradient(ellipse at 75% 65%,rgba(57,142,141,.35),transparent 46%);
+  animation: monthly-glow 24s ease-in-out infinite alternate;
+}
+.zoe-inspired .home-monthly-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(125deg,rgba(255,255,255,.08),transparent 48%,rgba(255,255,255,.04));
+}
+.monthly-heading-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.monthly-heading-actions time{color:#fff;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.08);border-radius:30px;padding:8px 14px;font-size:11px}
+@keyframes monthly-colours{0%,100%{background-color:rgba(79,28,48,.94)}35%{background-color:rgba(41,37,79,.94)}70%{background-color:rgba(23,65,66,.94)}}
+@keyframes monthly-glow{from{transform:translate(-5%,-4%) rotate(-8deg)}to{transform:translate(7%,6%) rotate(12deg)}}
+@media(prefers-reduced-motion:reduce){.zoe-inspired .home-monthly-panel,.zoe-inspired .home-monthly-panel::before{animation:none}}
