@@ -26,7 +26,7 @@ export default function Home() {
           <SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="" width={48} height={48} />
           <span><strong>{settings.church_name}</strong><small>{settings.branch_name}</small></span>
         </a>
-        <button className="home-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="home-navigation" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen ? "Close ×" : "Menu ☰"}</button>
+        <button className="home-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="home-navigation" onClick={()=>setMenuOpen(!menuOpen)}><span aria-hidden="true">{menuOpen ? "×" : "☰"}</span></button>
         <nav id="home-navigation" aria-label="Main navigation" className={`home-navigation ${menuOpen ? "is-open" : ""}`} onKeyDown={(event)=>{if(event.key === "Escape")closeMenu();}}>
           <a href="/visit" onClick={closeMenu}>Visit us</a><Link href="/appointments" onClick={closeMenu}>Meet the pastor</Link><a href="#church-care" onClick={closeMenu}>Prayer & Care</a>
           <a href="#announcements" onClick={closeMenu}>What’s on</a>

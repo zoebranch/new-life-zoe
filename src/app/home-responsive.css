@@ -6,11 +6,24 @@
 .zoe-inspired .home-event:nth-child(even) .inspired-event-art,.zoe-inspired .home-event:nth-child(even) img{animation-delay:-3.5s}
 @keyframes event-halo{from{box-shadow:0 0 0 1px rgba(180,110,84,.12),0 0 16px rgba(193,123,83,.14)}to{box-shadow:0 0 0 1px rgba(156,110,144,.2),0 0 28px rgba(172,110,143,.27)}}
 @media(max-width:760px){
+  .zoe-inspired .home-header-inner{position:relative;flex-wrap:nowrap}
+  .zoe-inspired .home-header .home-brand{flex:1}
+  .zoe-inspired .home-menu-toggle{display:flex;align-items:center;justify-content:center;flex:0 0 44px;padding:0;border:1px solid #ded9ce;border-radius:10px;background:transparent;color:var(--home-ink)}
+  .zoe-inspired .home-menu-toggle span{font-size:25px;line-height:1}
+  .zoe-inspired .home-navigation{display:none;position:absolute;top:100%;left:0;right:0;width:100%;max-height:calc(100dvh - 70px);overflow-y:auto;background:#fdfcf9;border-top:1px solid #ded9ce;box-shadow:0 12px 20px #22222214;padding:12px 16px;z-index:60}
+  .zoe-inspired .home-navigation.is-open{display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .zoe-inspired .home-navigation a{display:flex;align-items:center;min-height:44px;padding:12px 10px;white-space:normal;font-size:14px;border-bottom:1px solid #e9e5dc}
+  .zoe-inspired .home-navigation .home-login{margin-top:8px;padding:12px 10px;justify-content:space-between}
   .zoe-inspired .home-wrap{padding-inline:clamp(16px,4.3vw,28px)}
   .zoe-inspired .home-section{padding-block:clamp(30px,7vw,48px)}
   .zoe-inspired .home-section-heading{flex-direction:column;align-items:stretch;gap:16px;margin-bottom:22px}
   .zoe-inspired h2,.zoe-inspired .home-section-heading h2{font-size:clamp(24px,6.2vw,34px);line-height:1.12}
   .zoe-inspired .home-section-heading>p,.zoe-inspired .home-recording-intro{font-size:14px;line-height:1.7;max-width:100%}
+  .zoe-inspired .home-services .home-section-heading{align-items:stretch;text-align:left;gap:12px;margin-bottom:20px}
+  .zoe-inspired .home-services .home-section-heading>div{width:100%;text-align:left;margin:0}
+  .zoe-inspired .home-services .home-section-heading .home-eyebrow{text-align:left;margin:0 0 10px;line-height:1.5}
+  .zoe-inspired .home-services .home-section-heading h2{text-align:left;margin:0;max-width:100%;font-size:clamp(24px,6.2vw,32px);line-height:1.15}
+  .zoe-inspired .home-services .home-section-heading>p{text-align:left;margin:0;max-width:100%}
   .zoe-inspired .home-hero,.zoe-inspired .home-hero-copy{min-height:0}
   .zoe-inspired .home-hero-copy{padding:clamp(32px,8vw,52px) clamp(16px,4.3vw,28px)}
   .zoe-inspired .home-hero h1{font-size:clamp(32px,8.5vw,56px);line-height:1.06;max-width:100%}
