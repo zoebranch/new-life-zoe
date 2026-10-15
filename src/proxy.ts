@@ -30,7 +30,7 @@ export async function proxy(request: NextRequest) {
       ? "cell_leader"
       : path.startsWith("/zone-leader")
         ? "zone_leader"
-        : null;
+        : path.startsWith("/secretary") ? "secretary" : null;
 
   if (!expectedRole) {
     await supabase.auth.getClaims();
@@ -57,10 +57,11 @@ export async function proxy(request: NextRequest) {
   if (profile?.is_suspended) {
     return redirect(new URL("/leaders?disabled=1", request.url));
   }
-  if (!profile || profile.role !== expectedRole) {
+  if (!profile || (profile.role !== expectedRole && !(expectedRole === "secretary" && profile.role === "superadmin"))) {
     const target = profile?.role === "superadmin" ? "/super-admin"
       : profile?.role === "zone_leader" ? "/zone-leader"
       : profile?.role === "cell_leader" ? "/cell-admin"
+      : profile?.role === "secretary" ? "/secretary"
       : "/leaders";
     return redirect(new URL(target, request.url));
   }

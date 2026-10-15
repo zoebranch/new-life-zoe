@@ -5,6 +5,7 @@ import Link from "next/link";
 import RegionalCellReports from "@/components/regional-cell-reports";
 import UnitLeaderEditor from "@/components/unit-leader-editor";
 import CareRequestInbox from "@/components/care-request-inbox";
+import SecretaryAccountManager from "@/components/secretary-account-manager";
 import MinistryRequestInbox from "@/components/ministry-request-inbox";
 import ZoneReportInbox from "@/components/zone-report-inbox";
 import "./dashboard.css";
@@ -711,6 +712,7 @@ export default function SuperAdmin() {
           </nav>
           {(tab==="cells"||tab==="zones")&&<UnitLeaderEditor key={tab} kind={tab==="cells"?"cell":"zone"} units={tab==="cells"?cells:zones} onSaved={async()=>{await refreshData();}}/>}
           <CareRequestInbox visible={tab==="overview"||tab==="requests"} onPendingCountChange={setPendingCareCount}/>
+          {tab==="accounts"&&<SecretaryAccountManager/>}
           <MinistryRequestInbox visible={tab==="overview"||tab==="requests"} onPendingCountChange={setPendingMinistryCount}/>
           {tab==="overview"&&<>
           <RegionalCellReports/><ZoneReportInbox/>

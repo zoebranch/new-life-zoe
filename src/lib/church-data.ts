@@ -5,7 +5,7 @@ export type Profile = {
   user_id: string;
   username: string;
   display_name: string;
-  role: "superadmin" | "zone_leader" | "cell_leader";
+  role: "superadmin" | "zone_leader" | "cell_leader" | "secretary";
   cell_id: number | null;
   zone_id: number | null;
 };

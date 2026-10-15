@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import type { Cell } from "@/data/cells";
 import { createClient } from "@/lib/supabase/client";
 import { mapCell } from "@/lib/church-data";
+import CellPrayerInbox from "@/components/cell-prayer-inbox";
 
 type CellLeaderAuth = {
   user_id: string;
@@ -418,8 +419,9 @@ export default function CellAdmin() {
           <div><span>Reports submitted</span><strong>{myLogs.length}</strong><small>{stats.thisMonthLogs.length} this month</small></div>
           <div><span>Pending requests</span><strong>{joinRequests.filter(request=>request.status==="pending").length}</strong><small>People waiting to join your cell</small></div>
         </div>
-        <nav className="cell-dashboard-nav" aria-label="Dashboard sections"><a href="#cell-overview">Overview</a><a href="#join-requests-heading">Join requests</a><a href="#cell-members">Members</a><a href="#submit-cell-report">Submit report</a><a href="#cell-report-history">Report history</a></nav>
+        <nav className="cell-dashboard-nav" aria-label="Dashboard sections"><a href="#cell-overview">Overview</a><a href="#cell-prayer-requests">Prayer requests</a><a href="#join-requests-heading">Join requests</a><a href="#cell-members">Members</a><a href="#submit-cell-report">Submit report</a><a href="#cell-report-history">Report history</a></nav>
 
+        <CellPrayerInbox/>
         <section className="bg-[#151515] border border-[#222] rounded-[24px] p-6 mb-6" aria-labelledby="join-requests-heading">
           <div className="flex items-center justify-between gap-4 mb-4">
             <h2 id="join-requests-heading" className="font-black text-sm">JOIN REQUESTS</h2>

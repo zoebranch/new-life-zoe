@@ -1,0 +1,12 @@
+"use client";
+import {useState} from "react";
+import Link from "next/link";
+import {SiteImage} from "@/components/site-image";
+import StaffCareInbox from "@/components/staff-care-inbox";
+import {createClient} from "@/lib/supabase/client";
+import "@/app/secretary/secretary.css";
+export default function SecretaryWorkspace({name}:{name:string}){
+ const [pending,setPending]=useState(0),[password,setPassword]=useState(""),[confirmation,setConfirmation]=useState(""),[busy,setBusy]=useState(false),[message,setMessage]=useState("");
+ async function changePassword(event:React.FormEvent){event.preventDefault();if(busy)return;if(password.length<12||password!==confirmation){setMessage("Use at least 12 characters and matching passwords.");return;}setBusy(true);setMessage("");try{const{error}=await createClient().auth.updateUser({password});if(error)throw error;setPassword("");setConfirmation("");setMessage("Your password has been changed.");}catch{setMessage("The password could not be changed. Please try again.");}finally{setBusy(false);}}
+ return <main className="secretary-workspace"><header className="secretary-header"><Link href="/" className="secretary-brand"><SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="Zoe Branch" width={44} height={44}/><span>ZOE BRANCH<small>Secretary workspace</small></span></Link><form action="/api/auth/logout" method="post"><button className="care-secondary">Sign out</button></form></header><div className="secretary-content"><div className="secretary-intro"><p className="care-category">WELCOME, {name}</p><h1>Care for our church family.</h1><p>Manage visits, review the pastor’s appointment requests, and follow up on church-care concerns.</p><span className="care-status">{pending} new {pending===1?"request":"requests"}</span></div><StaffCareInbox visible onPendingCountChange={setPending}/><details className="secretary-account"><summary>Account &amp; password</summary><p>Use your own password after your first sign-in.</p><form onSubmit={changePassword} className="care-review-form"><label>New password<input type="password" autoComplete="new-password" minLength={12} required value={password} onChange={e=>setPassword(e.target.value)}/></label><label>Confirm password<input type="password" autoComplete="new-password" minLength={12} required value={confirmation} onChange={e=>setConfirmation(e.target.value)}/></label>{message&&<p role="status">{message}</p>}<button className="care-primary" disabled={busy}>{busy?"Saving…":"Change password"}</button></form></details></div></main>;
+}

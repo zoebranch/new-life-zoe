@@ -59,6 +59,7 @@ export default function LeadersLogin() {
     const destination = profile.role === "superadmin" ? "/super-admin"
       : profile.role === "zone_leader" ? "/zone-leader"
       : profile.role === "cell_leader" ? "/cell-admin"
+      : profile.role === "secretary" ? "/secretary"
       : "/leaders";
     const allowedPath = requestedPath && !requestedPath.includes("\\")
       && (requestedPath === destination || requestedPath.startsWith(`${destination}/`))
