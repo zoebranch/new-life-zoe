@@ -8,6 +8,7 @@ import { SiteImage } from "@/components/site-image";
 import { useSiteSettings } from "@/lib/use-site-settings";
 import "./home.css";
 import "./inspired-home.css";
+import "./church-care.css";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,7 +24,7 @@ export default function Home() {
         </a>
         <button className="home-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="home-navigation" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen ? "Close ×" : "Menu ☰"}</button>
         <nav id="home-navigation" aria-label="Main navigation" className={`home-navigation ${menuOpen ? "is-open" : ""}`} onKeyDown={(event)=>{if(event.key === "Escape")closeMenu();}}>
-          <a href="/visit" onClick={closeMenu}>Visit us</a>
+          <a href="/visit" onClick={closeMenu}>Visit us</a><Link href="/appointments" onClick={closeMenu}>Meet the pastor</Link><a href="#church-care" onClick={closeMenu}>Prayer & Care</a>
           <a href="#announcements" onClick={closeMenu}>What’s on</a>
           <Link href="/cells" onClick={closeMenu}>Our cells</Link>
           <Link href="/sermons" onClick={closeMenu}>Sermons</Link>
@@ -56,11 +57,20 @@ export default function Home() {
     </section>
     <PublicSiteContent />
     <HomeMinistries />
+    <section id="church-care" className="home-section home-church-care" aria-labelledby="church-care-heading"><div className="home-wrap">
+      <div className="home-section-heading"><div><p className="home-eyebrow">FOR OUR CHURCH MEMBERS</p><h2 id="church-care-heading">Prayer &amp; Church Care</h2></div><p>We’re here for one another. Share a prayer request, family news, or a need for support with the church care team.</p></div>
+      <div className="home-care-grid">
+        <Link href="/care?request=prayer" className="home-care-card"><span className="home-care-number" aria-hidden="true">01</span><h3>Request prayer</h3><p>Share a private prayer request. You may remain anonymous.</p><span className="home-care-action">Send a prayer request <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=bereavement" className="home-care-card"><span className="home-care-number" aria-hidden="true">02</span><h3>Report a bereavement</h3><p>Let us know about a loss so the church can offer support.</p><span className="home-care-action">Contact the care team <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=newborn" className="home-care-card"><span className="home-care-number" aria-hidden="true">03</span><h3>Welcome a newborn</h3><p>Share the good news and discuss a church announcement.</p><span className="home-care-action">Share family news <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=hospital" className="home-care-card"><span className="home-care-number" aria-hidden="true">04</span><h3>Hospital admission</h3><p>Let us know someone needs prayer, a visit, or practical support.</p><span className="home-care-action">Request church support <span aria-hidden="true">↗</span></span></Link>
+      </div><p className="home-care-private">Your submission is private. Nothing is published automatically, and no account is needed.</p>
+    </div></section>
     <section id="evangelism" className="home-section home-mission">
       <div className="home-wrap home-mission-inner"><div><p className="home-eyebrow">{settings.homepage_copy.mission_eyebrow}</p><h2>{settings.homepage_copy.mission_heading}</h2></div><div><p>{settings.homepage_copy.mission_intro}</p><Link href="/cells" className="home-button home-button-red">{settings.homepage_copy.mission_button} <span aria-hidden="true">→</span></Link></div></div>
     </section>
     <footer className="home-footer"><div className="home-wrap">
-      <div className="home-footer-grid"><div><a href="#home" className="home-brand"><SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="" width={48} height={48}/><span><strong>{settings.church_name}</strong><small>{settings.branch_name}</small></span></a><p className="home-footer-slogan">{settings.slogan}</p></div><div><h3>Explore</h3><a href="#service-times">Service times</a><a href="#announcements">Church updates</a><Link href="/cells">Find a cell</Link><a href="#ministries">Join a ministry</a><Link href="/sermons">Sermons</Link></div><div><h3>Get in touch</h3>{settings.contact_address && <p>{settings.contact_address}</p>}{settings.contact_phone && <a href={`tel:${settings.contact_phone}`}>{settings.contact_phone}</a>}{settings.contact_email && <a href={`mailto:${settings.contact_email}`}>{settings.contact_email}</a>}<Link href="/leaders">Leader login <span aria-hidden="true">↗</span></Link></div></div>
+      <div className="home-footer-grid"><div><a href="#home" className="home-brand"><SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="" width={48} height={48}/><span><strong>{settings.church_name}</strong><small>{settings.branch_name}</small></span></a><p className="home-footer-slogan">{settings.slogan}</p></div><div><h3>Explore</h3><a href="#service-times">Service times</a><a href="#announcements">Church updates</a><Link href="/cells">Find a cell</Link><a href="#ministries">Join a ministry</a><Link href="/sermons">Sermons</Link></div><div><h3>Get in touch</h3><Link href="/visit">Plan a visit</Link><Link href="/appointments">Meet the pastor</Link><Link href="/care">Prayer & Church Care</Link>{settings.contact_address && <p>{settings.contact_address}</p>}{settings.contact_phone && <a href={`tel:${settings.contact_phone}`}>{settings.contact_phone}</a>}{settings.contact_email && <a href={`mailto:${settings.contact_email}`}>{settings.contact_email}</a>}<Link href="/leaders">Leader login <span aria-hidden="true">↗</span></Link></div></div>
       <div className="home-footer-bottom"><p>© {new Date().getFullYear()} {settings.church_name} · {settings.branch_name}</p><a href="#home">Back to top ↑</a></div>
     </div></footer>
   </main>;

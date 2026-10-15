@@ -1,0 +1,12 @@
+.home-church-care{background:#eeeae2;border-top:1px solid #deded5;border-bottom:1px solid #deded5}
+.home-care-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:32px}
+.home-care-card{display:flex;flex-direction:column;padding:28px;background:#fdfcf9;border:1px solid #d8d6cc;color:var(--home-ink);transition:transform .15s,border-color .15s}
+.home-care-card:hover{transform:translateY(-3px);border-color:var(--home-red)}
+.home-care-number{font-size:12px;font-weight:700;color:var(--home-red);letter-spacing:.12em}
+.home-care-card h3{font-family:Georgia,'Times New Roman',serif;font-size:27px;font-weight:400;line-height:1.15;margin:22px 0 14px}
+.home-care-card p{font-size:14px;line-height:1.7;color:var(--home-muted);margin:0 0 24px}
+.home-care-action{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:auto;padding-top:18px;border-top:1px solid #deded5;font-size:12px;font-weight:700;color:var(--home-red)}
+.home-care-private{font-size:13px;line-height:1.7;color:var(--home-muted);margin-top:22px}
+@media(max-width:1050px){.home-care-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.home-care-grid{grid-template-columns:1fr;gap:14px}.home-care-card{padding:24px}.home-care-card h3{margin-top:14px}}
+@media(prefers-reduced-motion:reduce){.home-care-card{transition:none}.home-care-card:hover{transform:none}}
