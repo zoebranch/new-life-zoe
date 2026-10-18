@@ -1,0 +1,20 @@
+'use client';
+import {useRef,useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+type Contact={id:string;name:string;phone:string;area:string};
+export default function OutreachMembership({contact,cellId,onSaved}:{contact:Contact;cellId:number;onSaved:()=>void}){
+ const [review,setReview]=useState<{name:string;phone:string;area:string;gender:string;age:number}|null>(null),[confirmed,setConfirmed]=useState(false),[busy,setBusy]=useState(false),[saved,setSaved]=useState(false),[error,setError]=useState('');const pending=useRef(false);
+ async function save(){
+  if(pending.current||!review||!confirmed)return;pending.current=true;setBusy(true);setError('');
+  try{
+   const db=createClient(),payload={...review,cell_id:cellId};
+   const previous=await db.from('members').select('id,cell_id,is_active').eq('cell_id',cellId).eq('name',review.name).eq('phone',review.phone).maybeSingle();
+   if(previous.error)throw Error('Membership could not be checked. Try again.');
+   if(previous.data){if(previous.data.cell_id!==cellId||!previous.data.is_active)throw Error('This contact already has a membership record. Check the register or contact Super Admin.');}
+   else{const result=await db.from('members').insert(payload);if(result.error)throw Error(result.error.message.includes('CELL_ALREADY_REGISTERED')?'This person is already registered or has a pending request. Check membership or contact Super Admin.':'Membership could not be confirmed. Retry with this form; a second record will not be created.');}
+   setSaved(true);onSaved();
+  }catch(e){setError(e instanceof Error?e.message:'Membership could not be saved.');}finally{pending.current=false;setBusy(false);}
+ }
+ return <details onToggle={e=>{if(!e.currentTarget.open&&!busy){setReview(null);setConfirmed(false);setError('');}}}><summary>Membership options</summary>{saved?<p role="status">Saved to your cell membership register. Outreach history is preserved.</p>:<><p>Register only after this person agrees to join your cell. Review their details before confirming.</p>{error&&<p role="alert" className="outreach-error">{error}</p>}{review?<section aria-label="Confirm cell membership"><h4>Review membership</h4><p>{review.name} · {review.phone} · {review.gender} · Age {review.age} · {review.area}</p><label><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} style={{width:20,display:'inline-block',marginRight:10}}/>I confirm this person agreed to become a member of my cell.</label><div className="outreach-actions"><button type="button" disabled={!confirmed||busy} onClick={()=>void save()}>{busy?'Saving…':'Confirm and add to membership'}</button><button type="button" disabled={busy} onClick={()=>{setReview(null);setConfirmed(false);}}>Back to details</button></div></section>:<form onSubmit={e=>{e.preventDefault();const form=new FormData(e.currentTarget),name=String(form.get('name')??'').trim().toUpperCase(),phone=String(form.get('phone')??'').trim(),area=String(form.get('area')??'').trim(),gender=String(form.get('gender')??''),rawAge=String(form.get('age')??''),age=Number(rawAge);if(!name||name.length>160||phone.replace(/\D/g,'').length<7||phone.length>40||area.length>200||!['Male','Female'].includes(gender)||!/^\d+$/.test(rawAge)||age>120){setError('Check the name, phone, gender and age (0–120).');return;}setError('');setConfirmed(false);setReview({name,phone,area,gender,age});}}><label>Full name<input name="name" required maxLength={160} defaultValue={contact.name}/></label><label>Phone number<input name="phone" type="tel" required maxLength={40} defaultValue={contact.phone}/></label><label>Area<input name="area" maxLength={200} defaultValue={contact.area}/></label><label>Gender<select name="gender" required defaultValue=""><option value="" disabled>Choose gender</option><option>Male</option><option>Female</option></select></label><label>Age<input name="age" type="number" min={0} max={120} step={1} required/></label><button type="submit">Review membership details</button></form>}</>}</details>;
+}
+

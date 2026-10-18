@@ -85,8 +85,8 @@ export default function JoinPage() {
       <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
         <div className="bg-[#151515] border border-[#222] rounded-[24px] p-8 text-center max-w-sm w-full">
           <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto text-2xl">✓</div>
-          <h2 className="font-black text-xl mt-4">Welcome to {cell.name}!</h2>
-          <p className="text-gray-400 text-sm mt-2">Your request has been sent to the cell leader for review.</p>
+          <h2 className="font-black text-xl mt-4">Request sent to {cell.name}</h2>
+          <p className="text-gray-400 text-sm mt-2">Your request is waiting for the cell leader’s approval. The leader can contact you using the phone number you provided.</p>
         </div>
       </div>
     )
@@ -117,30 +117,31 @@ export default function JoinPage() {
             <span className="text-[8px] bg-[#222] px-2 py-1 rounded-full text-gray-400">{cell.area}</span>
           </div>
 
+          <p className="text-sm text-gray-400 mb-5">No account is needed. Send your details below for the cell leader to review.</p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-[10px] font-black tracking-widest text-gray-400">FULL NAME</label>
-              <input required placeholder="John Phiri" value={name} onChange={e=>setName(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm focus:border-red-600 outline-none" />
+              <label htmlFor="join-member-name" className="text-[10px] font-black tracking-widest text-gray-400">FULL NAME</label>
+              <input id="join-member-name" autoComplete="name" maxLength={160} required placeholder="John Phiri" value={name} onChange={e=>setName(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
-              <label className="text-[10px] font-black tracking-widest text-gray-400">PHONE NUMBER</label>
-              <input required placeholder="097..." value={phone} onChange={e=>setPhone(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm focus:border-red-600 outline-none" />
+              <label htmlFor="join-member-phone" className="text-[10px] font-black tracking-widest text-gray-400">PHONE NUMBER</label>
+              <input id="join-member-phone" type="tel" autoComplete="tel" maxLength={40} required placeholder="097..." value={phone} onChange={e=>setPhone(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm focus:border-red-600 outline-none" />
             </div>
             <div className="flex gap-3">
               <div className="w-1/2">
-                <label className="text-[10px] font-black tracking-widest text-gray-400">GENDER</label>
-                <select value={gender} onChange={e=>setGender(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm outline-none">
+                <label htmlFor="join-member-gender" className="text-[10px] font-black tracking-widest text-gray-400">GENDER</label>
+                <select id="join-member-gender" value={gender} onChange={e=>setGender(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm outline-none">
                   <option>Male</option><option>Female</option>
                 </select>
               </div>
               <div className="w-1/2">
-                <label className="text-[10px] font-black tracking-widest text-gray-400">AGE</label>
-                <input required type="number" min="0" max="120" placeholder="25" value={age} onChange={e=>setAge(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm focus:border-red-600 outline-none" />
+                <label htmlFor="join-member-age" className="text-[10px] font-black tracking-widest text-gray-400">AGE</label>
+                <input id="join-member-age" required type="number" step="1" min="0" max="120" placeholder="25" value={age} onChange={e=>setAge(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#222] p-3.5 rounded-full mt-1 text-sm focus:border-red-600 outline-none" />
               </div>
             </div>
             {error && <p role="alert" className="text-red-400 text-xs">{error}</p>}
             <button type="submit" disabled={busy} className="w-full bg-[#cc0000] hover:bg-red-700 disabled:opacity-60 text-white py-4 rounded-full font-black text-sm mt-2">
-              {busy ? "Sending request…" : `Request to join ${cell.area} Cell`}
+              {busy ? "Sending request…" : `Request to join ${cell.name}`}
             </button>
             <p className="text-center text-[10px] text-gray-500 mt-2">You can belong to one cell at a time. If you need to change cells, contact your cell leader.</p>
           </form>

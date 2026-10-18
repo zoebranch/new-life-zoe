@@ -1,0 +1,19 @@
+.zoe-inspired .home-church-care{background:#f7f4ef}
+.home-care-intro{font-size:15px;line-height:1.7;color:var(--home-muted);margin:0 0 22px}
+.zoe-inspired .home-care-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;margin-top:0}
+.zoe-inspired .home-care-card{grid-column:span 2;position:relative;isolation:isolate;overflow:hidden;border:1px solid #ffffff38;border-radius:20px;padding:24px;background:linear-gradient(125deg,#ffffff14,transparent 65%),rgba(79,28,48,.94);color:#fff;animation:monthly-colours 28s ease-in-out infinite,care-soft-glow 9s ease-in-out infinite alternate;box-shadow:0 6px 24px #a43b5712;transition:transform .2s,border-color .2s}
+.zoe-inspired .home-care-card:nth-child(4){grid-column:2 / span 2}
+.zoe-inspired .home-care-card:nth-child(5){grid-column:4 / span 2}
+.zoe-inspired .home-care-card::before{content:"";position:absolute;z-index:-1;top:-50px;right:-35px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#e6a5c34d,transparent 70%);pointer-events:none}
+.zoe-inspired .home-care-card:nth-child(2n){animation-delay:-9s,-3s}
+.zoe-inspired .home-care-card:nth-child(3n){animation-delay:-18s,-6s}
+.zoe-inspired .home-care-card .home-care-number{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#ffffff1f;color:#fff;font-size:10px;letter-spacing:.08em}
+.zoe-inspired .home-church-care .home-care-card h3{color:#fff;font-family:inherit;font-weight:600;font-size:21px;line-height:1.25;margin:16px 0 9px}
+.zoe-inspired .home-church-care .home-care-card p{color:#ffffffe6;font-size:14px;line-height:1.65;margin:0 0 20px}
+.zoe-inspired .home-care-card .home-care-action{color:#fff;border-color:#ffffff38;padding-top:14px;font-size:12px}
+.zoe-inspired .home-care-card:hover{transform:translateY(-4px);border-color:#ffffff80}
+.zoe-inspired .home-care-card:focus-visible{outline:3px solid #933b58;outline-offset:4px}
+@keyframes care-soft-glow{from{box-shadow:0 6px 24px #a43b5726,0 0 18px #c9789c38}to{box-shadow:0 8px 28px #7866ab40,0 0 30px #bd7fa466}}
+@media(max-width:760px){.zoe-inspired .home-care-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.zoe-inspired .home-care-card,.zoe-inspired .home-care-card:nth-child(4),.zoe-inspired .home-care-card:nth-child(5){grid-column:auto}.zoe-inspired .home-care-card:last-child{grid-column:1 / -1}.zoe-inspired .home-care-card{padding:20px}.zoe-inspired .home-church-care .home-care-card h3{font-size:19px}}
+@media(max-width:480px){.zoe-inspired .home-care-grid{grid-template-columns:1fr;gap:12px}.zoe-inspired .home-care-card{padding:18px 20px}.zoe-inspired .home-church-care .home-care-card h3{font-size:19px;margin:12px 0 7px}.zoe-inspired .home-church-care .home-care-card p{font-size:13px;margin-bottom:14px}.home-care-intro{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.zoe-inspired .home-care-card{animation:none;transition:none;box-shadow:0 0 22px #bd7fa425}.zoe-inspired .home-care-card:hover{transform:none}}

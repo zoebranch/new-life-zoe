@@ -9,7 +9,7 @@ export const careKinds = {
 } as const;
 export type CareKind = keyof typeof careKinds;
 export const memberCareKinds: CareKind[] = ["prayer", "bereavement", "newborn", "hospital", "other"];
-export function localDateToday() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+export function localDateToday(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {timeZone:"Africa/Lusaka",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(now);
+  return ["year","month","day"].map(type=>parts.find(part=>part.type===type)?.value).join("-");
 }

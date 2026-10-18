@@ -1,0 +1,12 @@
+"use client";
+import {useEffect,useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {fetchAllRows} from '@/lib/fetch-all-rows';
+import {careAgenda,type AgendaRequest,type AgendaFollowup} from '@/lib/care-agenda';
+import {localDateToday} from '@/lib/care-requests';
+export default function CareAgenda({requests,revision,onSelect}:{requests:AgendaRequest[];revision:number;onSelect:(id:string)=>void}){
+ const[followups,setFollowups]=useState<AgendaFollowup[]>([]),[error,setError]=useState(''),[loading,setLoading]=useState(true);
+ useEffect(()=>{let active=true;void(async()=>{try{const result=await fetchAllRows((a,b)=>createClient().from('care_followups').select('id,request_id,stage,next_followup,created_at').order('created_at',{ascending:false}).order('id').range(a,b));if(result.error)throw result.error;if(active){setFollowups(result.data as AgendaFollowup[]);setError('');}}catch{if(active)setError('Follow-up reminders could not be refreshed. Open a request to check its history.');}finally{if(active)setLoading(false);}})();return()=>{active=false;};},[revision]);
+ const today=localDateToday(),entries=careAgenda(requests,followups,today),overdue=entries.filter(e=>e.overdue).length;
+ return <section className="care-agenda" aria-labelledby="care-agenda-title"><div className="care-card-heading"><div><p className="care-category">TODAY & THE NEXT 7 DAYS · LUSAKA</p><h3 id="care-agenda-title">Your care agenda</h3></div>{overdue>0&&<span className="care-status care-status-rejected">{overdue} overdue</span>}</div>{error&&<p role="alert" className="care-error">{error}</p>}{loading?<p role="status">Loading follow-up reminders…</p>:entries.length===0?<p className="care-received">No upcoming appointments, visits, or follow-ups are scheduled.</p>:<ul className="care-agenda-list">{entries.map((entry,index)=><li key={`${entry.id}-${entry.label}`}><button type="button" className={entry.overdue?'is-overdue':''} onClick={()=>onSelect(entry.id)}><span className="care-agenda-date">{entry.overdue?'Overdue':entry.date===today?'Today':new Date(`${entry.date}T12:00:00Z`).toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'Africa/Lusaka'})}<small>{entry.overdue?entry.date:entry.time||'Date only'}</small></span><span><strong>{entry.name}</strong><small>{entry.label}</small></span><span aria-hidden="true">→</span></button>{index===19&&entries.length>20&&<p className="care-received">More scheduled actions continue below.</p>}</li>)}</ul>}</section>;
+}

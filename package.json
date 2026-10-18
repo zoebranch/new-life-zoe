@@ -7,7 +7,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test": "node tests/report-validation.mjs"
+    "test": "node tests/report-validation.mjs && node tests/experience-upgrades.mjs && node tests/ministry-routing.mjs && node tests/zone-summary.mjs",
+    "test:outreach": "node tests/outreach-database.mjs",
+    "test:attendance": "node tests/member-attendance.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -17,6 +19,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

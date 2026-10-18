@@ -1,0 +1,13 @@
+"use client";
+import {useEffect,useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {fetchAllRows} from '@/lib/fetch-all-rows';
+import {useDashboardRefresh} from '@/lib/use-dashboard-refresh';
+import MemberRecordEditor,{type ManagedMember} from '@/components/member-record-editor';
+
+export default function CellMemberRegister({cellId,revision,onSaved}:{cellId:number;revision:number;onSaved:()=>void}){
+ const tick=useDashboardRefresh();const [rows,setRows]=useState<ManagedMember[]>([]),[filter,setFilter]=useState('active'),[search,setSearch]=useState(''),[error,setError]=useState(''),[loading,setLoading]=useState(true),[notice,setNotice]=useState('');
+ useEffect(()=>{let active=true;void(async()=>{try{const result=await fetchAllRows((a,b)=>createClient().from('members').select('id,cell_id,name,gender,age,phone,area,joined_at,is_active,record_version').eq('cell_id',cellId).order('name').order('id').range(a,b));if(result.error)throw Error();if(active){setRows(result.data as ManagedMember[]);setError('');}}catch{if(active)setError('Member records could not be refreshed. Try again.');}finally{if(active)setLoading(false);}})();return()=>{active=false;};},[cellId,revision,tick]);
+ const shown=rows.filter(m=>(filter==='all'||m.is_active===(filter==='active'))&&`${m.name} ${m.phone??''}`.toLowerCase().includes(search.trim().toLowerCase()));
+ return <section className="cell-member-register" aria-label="Manage cell members"><h3>Member register</h3><p>{rows.filter(m=>m.is_active).length} active · {rows.filter(m=>!m.is_active).length} inactive</p><div className="cell-member-filters"><label>Search name or phone<input type="search" value={search} onChange={e=>setSearch(e.target.value)}/></label><label>Membership<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="active">Active</option><option value="inactive">Inactive</option><option value="all">All records</option></select></label></div>{error&&<p role="alert">{error}<button className="member-manage-button" onClick={onSaved}>Refresh</button></p>}{loading?<p role="status">Loading register…</p>:shown.length===0?<p>No members match this view.</p>:<div className="cell-member-records">{shown.map(m=><article key={m.id}><div><strong>{m.name}</strong><span>{m.is_active?'Active':'Inactive'} · {m.gender} · {m.age??'—'} years</span><p>{m.phone||'No phone recorded'}{m.area?` · ${m.area}`:''}</p></div><MemberRecordEditor member={m} onSaved={()=>{setNotice("Member record updated.");onSaved();}}/></article>)}</div>}<p role="status">{notice}</p><p>Corrections and status changes require a reason. Contact Super Admin for transfers to another cell.</p></section>;
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { SiteImage } from "@/components/site-image";
 import { createClient } from "@/lib/supabase/client";
 
@@ -9,6 +10,7 @@ export default function LeadersLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPassword,setShowPassword]=useState(false);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("disabled") === "1") {
@@ -19,8 +21,10 @@ export default function LeadersLogin() {
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if(busy)return;
     setBusy(true);
     setError("");
+    try {
     const supabase = createClient();
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
@@ -44,7 +48,7 @@ export default function LeadersLogin() {
     if (profileError || !profile) {
       await supabase.auth.signOut();
       setError(profileError
-        ? `We couldn't read this account's Zoe Church role: ${profileError.message}`
+        ? "We couldn’t load your account permissions. Please try again."
         : "This account has no Zoe Church role yet. Contact the administrator.");
       setBusy(false);
       return;
@@ -65,6 +69,8 @@ export default function LeadersLogin() {
       && (requestedPath === destination || requestedPath.startsWith(`${destination}/`))
       ? requestedPath : null;
     window.location.assign(allowedPath ?? destination);
+    } catch {setError("We couldn’t connect to sign-in. Check your connection and try again.");}
+    finally {setBusy(false);}
   }
 
   return (
@@ -82,11 +88,16 @@ export default function LeadersLogin() {
         <form onSubmit={handleLogin} className="w-full max-w-[360px] bg-[#111111] border border-white/[0.06] rounded-[24px] p-8">
           <h1 className="font-black text-[14px] tracking-[0.14em] text-white text-center mb-8">ZOE LEADER LOGIN</h1>
           <div className="flex flex-col gap-3">
-            <input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email" className="w-full h-[46px] px-5 rounded-full bg-[#E9EEF5] text-black text-[13px] font-medium outline-none placeholder:text-black/40" />
-            <input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" className="w-full h-[46px] px-5 rounded-full bg-[#E9EEF5] text-black text-[13px] font-medium outline-none placeholder:text-black/40" />
+            <label htmlFor="leader-email" className="text-xs text-gray-300">Email address</label>
+            <input id="leader-email" type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email" className="w-full h-[46px] px-5 rounded-full bg-[#E9EEF5] text-black text-[13px] font-medium outline-none placeholder:text-black/40" />
+            <label htmlFor="leader-password" className="text-xs text-gray-300">Password</label>
+            <input id="leader-password" type={showPassword?"text":"password"} autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" className="w-full h-[46px] px-5 rounded-full bg-[#E9EEF5] text-black text-[13px] font-medium outline-none placeholder:text-black/40" />
+            <button type="button" aria-controls="leader-password" aria-pressed={showPassword} onClick={()=>setShowPassword(v=>!v)} className="self-end text-xs text-gray-300 min-h-10 px-2">{showPassword?"Hide password":"Show password"}</button>
             {error && <p role="alert" className="text-red-400 text-xs text-center">{error}</p>}
             <button disabled={busy} className="w-full h-[44px] rounded-full bg-[#E10600] hover:bg-[#c10500] disabled:opacity-50 text-white font-black text-[12px] tracking-[0.1em] mt-2 transition">{busy ? "SIGNING IN…" : "SIGN IN"}</button>
           </div>
+          <p className="text-gray-400 text-xs leading-relaxed mt-6">For church leaders and staff. If you need help accessing your account, contact Super Admin.</p>
+          <Link href="/" className="block text-center text-gray-300 text-xs py-3 mt-3">← Back to website</Link>
         </form>
       </div>
     </div>

@@ -2,6 +2,8 @@
 import {fetchAllRows} from "@/lib/fetch-all-rows";
 import {useDashboardRefresh} from "@/lib/use-dashboard-refresh";
 import Link from "next/link";
+import AdminMenuDrawer from "@/components/admin-menu-drawer";
+import ZoneEscalationInbox from "@/components/zone-escalation-inbox";
 import RegionalCellReports from "@/components/regional-cell-reports";
 import UnitLeaderEditor from "@/components/unit-leader-editor";
 import CareRequestInbox from "@/components/care-request-inbox";
@@ -40,7 +42,6 @@ type JoinRequest = {
   phone: string;
   status: "pending" | "approved" | "rejected";
   created_at: string;
-  cells: { name: string }[] | null;
 };
 
 type IssuedCredentials = {
@@ -84,7 +85,7 @@ type AdminActivity = {
   created_at: string;
 };
 
-function TopBar({ hideMenu = false, onHome, onMenuToggle }: { hideMenu?: boolean; onHome: () => void; onMenuToggle: () => void }) {
+function TopBar({ hideMenu = false, menuOpen=false, onHome, onMenuToggle }: { hideMenu?: boolean; menuOpen?:boolean; onHome: () => void; onMenuToggle: () => void }) {
   return (
     <header className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl h-[64px] flex items-center border-b border-black/5">
       <div className="w-full px-5 md:px-10 flex items-center justify-between">
@@ -92,7 +93,7 @@ function TopBar({ hideMenu = false, onHome, onMenuToggle }: { hideMenu?: boolean
           <SiteImage slot="church-logo" fallbackSrc="/logo.png" alt="Zoe Church" width={42} height={42} className="w-[42px] h-[42px] rounded-full object-contain bg-white" />
           <div className="leading-[0.9]"><p className="font-black text-[12.5px] text-black">NEW LIFE CHRISTIAN CENTER</p><p className="font-black text-[10px] tracking-[0.18em] text-[#E10600] mt-[2px]">ZOE BRANCH</p></div>
         </div>
-        {!hideMenu && (<button onClick={onMenuToggle} aria-label="Open dashboard menu" className="w-10 h-10 flex flex-col items-center justify-center gap-[5px]"><span className="w-6 h-[2px] bg-black block rounded-full"/><span className="w-6 h-[2px] bg-black block rounded-full"/><span className="w-6 h-[2px] bg-black block rounded-full"/></button>)}
+        {!hideMenu && <button id="admin-menu-toggle" onClick={onMenuToggle} aria-label={menuOpen?"Close dashboard menu":"Open dashboard menu"} aria-expanded={menuOpen} aria-controls="admin-dashboard-menu" className="admin-menu-toggle"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></button>}
       </div>
     </header>
   );
@@ -245,10 +246,10 @@ export default function SuperAdmin() {
       const { data: profile, error } = await supabase.from("profiles").select("role,is_suspended").eq("user_id", user.id).maybeSingle();
       if (error || profile?.is_suspended || profile?.role !== "superadmin") { router.replace("/leaders"); return; }
       const { data: joinData, error: joinError } = await fetchAllRows((from,to) => supabase.from("member_join_requests")
-        .select("id,cell_id,name,gender,age,phone,status,created_at,cells(name)")
+        .select("id,cell_id,name,gender,age,phone,status,created_at")
         .order("created_at", { ascending: false }).order("id").range(from,to));
       const { data: memberData, error: memberError } = await fetchAllRows((from,to) => supabase.from("members")
-        .select("id,cell_id,name,gender,age,phone,area,joined_at").order("name").order("id").range(from,to));
+        .select("id,cell_id,name,gender,age,phone,area,joined_at").eq("is_active",true).order("name").order("id").range(from,to));
       if (!active) return;
       setJoinRequests(joinData ?? []);
       if (!memberError) setAllMembers((memberData ?? []).map((member) => ({
@@ -278,7 +279,7 @@ export default function SuperAdmin() {
     setProvisionError("");
     setSelected(cell);
     const { data, error } = await createClient().from("members")
-      .select("id,cell_id,name,gender,age,phone,area,joined_at")
+      .select("id,cell_id,name,gender,age,phone,area,joined_at").eq("is_active",true)
       .eq("cell_id", cell.id).order("name");
     if (error) {
       setProvisionError("We couldn't load this cell's members. Refresh and try again.");
@@ -362,12 +363,14 @@ export default function SuperAdmin() {
   };
 
   const resetLeaderPassword = async () => {
+    if(provisioning)return;
     const recordId = Number(resetPasswordForm.recordId);
     if (!Number.isSafeInteger(recordId) || recordId < 1) {
       setProvisionError("Choose the cell or zone whose leader needs a new password.");
       return;
     }
-    if (!confirm("This replaces the leader's current password. Continue?")) return;
+    const unit=(resetPasswordForm.kind==='cell'?cells:zones).find(unit=>unit.id===recordId);
+    if (!confirm(`Reset the password for ${unit?.leader||'the leader'} of ${unit?.name||'this unit'}? Their current password will stop working.`)) return;
     setProvisioning(true);
     setProvisionError("");
     setIssuedCredentials(null);
@@ -576,7 +579,7 @@ export default function SuperAdmin() {
         <div className={`min-h-screen ${bg} ${text} p-6 pt-[80px]`}>
           <div className="max-w-6xl mx-auto">
             <button onClick={()=>setShowCellsDetail(false)} className="bg-[#222] text-white px-4 py-2 rounded-full text-xs font-bold mb-6">← Back to Dashboard</button>
-            <div className="flex justify-between items-end mb-6"><div><Link href="/super-admin/reports" className="inline-block mb-4 bg-green-700 text-white px-5 py-3 rounded-full font-bold text-sm">Reports &amp; backups</Link><h1 className="text-2xl font-black">Cell directory</h1><p className={`${subText} text-sm mt-1`}>{cells.length} cells • {allMembers.length} members total</p></div></div>
+            <div className="flex justify-between items-end mb-6"><div><Link href="/super-admin/reports" className="inline-block mb-4 bg-green-700 text-white px-5 py-3 rounded-full font-bold text-sm">Reports &amp; backups</Link><h1 className="text-2xl font-black">Cell directory</h1><p className={`${subText} text-sm mt-1`}>{cells.length} cells • {allMembers.length} active members total</p></div></div>
             <div className="grid gap-4">
               {[...zones].sort((a,b)=>a.number-b.number).map((zone)=>{
                 const zCells = cells.filter((c)=>c.zoneId===zone.id);
@@ -602,26 +605,22 @@ export default function SuperAdmin() {
 
   return (
     <div className="super-admin-shell" data-theme={theme}>
-      <TopBar onHome={goHome} onMenuToggle={()=>setMenuOpen((open)=>!open)} />
-      {menuOpen && (
-        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-xl pt-[80px]">
-          <div className="w-full px-6 max-w-sm ml-auto h-full bg-[#151515] border-l border-[#222] p-6 overflow-auto">
-            <div className="flex justify-between items-center mb-8"><h2 className="font-black text-white">Menu</h2><button aria-label="Close dashboard menu" onClick={()=>setMenuOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white">✕</button></div>
-            <div className="space-y-4">
-              <button onClick={goHome} className="w-full text-left bg-[#222] text-white p-4 rounded-2xl text-sm font-bold"> Dashboard overview</button>
-              <Link href="/super-admin/reports" className="block w-full text-left bg-green-700 text-white p-4 rounded-2xl text-sm font-bold">Reports &amp; backups</Link>
-              <button onClick={()=>{setMenuOpen(false); router.push("/super-admin/website");}} className="w-full text-left bg-[#222] text-white p-4 rounded-2xl text-sm font-bold"> Website management</button>
-              <button onClick={()=>{setShowCellsDetail(true); setMenuOpen(false);}} className="w-full text-left bg-[#cc0000] text-white p-4 rounded-2xl text-sm font-bold"> Cell directory</button>
-              <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-3"> Theme</p><button onClick={toggleTheme} disabled={themeSaving} className="w-full bg-[#222] text-white py-3 rounded-full text-xs font-bold">{theme==="dark"?" Light Mode":" Dark Mode"}</button></div>
-              <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-1">Cell Archive</p><p className="text-[10px] text-gray-400 mb-3">Archive hides a cell from the public directory and keeps its records. You can restore it later.</p><button onClick={()=>{setShowDeleteManager(!showDeleteManager); setShowSettings(false);}} className="w-full bg-red-900/30 text-red-300 py-3 rounded-full text-xs font-bold border border-red-900/50">{showDeleteManager?"Hide":"Manage Cell Archive"}</button>{showDeleteManager && (<div className="mt-4 space-y-2 max-h-[300px] overflow-auto">{cells.map((c)=><div key={c.id} className="bg-[#151515] p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px] text-white"><span>{c.name}{!c.isActive && <span className="ml-2 text-yellow-300">Archived</span>}</span><button disabled={changingCellId === c.id} onClick={()=>void setCellActive(c)} className="bg-red-900/70 disabled:opacity-50 px-3 py-1 rounded-full text-[9px]">{changingCellId === c.id ? "Saving…" : c.isActive ? "Archive" : "Restore"}</button></div>)}</div>)}</div>
-              <div className="bg-[#0a0a0a] border border-[#222] rounded-2xl p-4"><p className="text-white font-bold text-sm mb-3"> Settings</p><button onClick={()=>{setShowSettings(!showSettings); setShowDeleteManager(false);}} className="w-full bg-[#222] text-white py-3 rounded-full text-xs font-bold">Change Password</button>{showSettings && (<div className="mt-4 space-y-2"><input type="password" placeholder="New Password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} className="w-full bg-[#151515] border border-[#222] p-3 rounded-full text-xs text-white outline-none"/><input type="password" placeholder="Confirm" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} className="w-full bg-[#151515] border border-[#222] p-3 rounded-full text-xs text-white outline-none"/><button onClick={changePassword} className="w-full bg-[#cc0000] py-3 rounded-full text-xs font-bold text-white">Update</button></div>)}</div>
-              <form action="/api/auth/logout" method="post">
-                <button type="submit" className="w-full bg-white text-black py-3 rounded-full text-xs font-bold">Sign out</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <TopBar menuOpen={menuOpen} onHome={goHome} onMenuToggle={()=>setMenuOpen((open)=>!open)} />
+      {menuOpen && <AdminMenuDrawer onClose={()=>setMenuOpen(false)}>
+        <nav className="admin-drawer-group" aria-label="Church administration"><p className="admin-drawer-label">CHURCH</p>
+          {([{id:'overview',label:'Overview'},{id:'cells',label:'Cells'},{id:'zones',label:'Zones'},{id:'requests',label:'Requests'},{id:'accounts',label:'Leader accounts'}] as const).map(item=><button key={item.id} className="admin-drawer-row" aria-current={tab===item.id?'page':undefined} onClick={()=>{setSelected(null);setShowCellsDetail(false);setTab(item.id);setShowCreateForm(false);setMenuOpen(false);setShowDeleteManager(false);setShowSettings(false);}}><span>{item.label}</span>{item.id==='requests'&&pendingRequests.length+pendingJoinRequests.length+pendingMinistryCount+pendingCareCount>0?<span className="admin-drawer-badge">{pendingRequests.length+pendingJoinRequests.length+pendingMinistryCount+pendingCareCount}</span>:<span aria-hidden="true">›</span>}</button>)}
+          <Link href="/super-admin/members" className="admin-drawer-row" onClick={()=>setMenuOpen(false)}><span>Church membership</span><span aria-hidden="true">↗</span></Link>
+          <Link href="/super-admin/reports" className="admin-drawer-row" onClick={()=>setMenuOpen(false)}><span>Reports &amp; backups</span><span aria-hidden="true">↗</span></Link>
+        </nav>
+        <nav className="admin-drawer-group" aria-label="Website publishing"><p className="admin-drawer-label">PUBLISHING</p><Link href="/super-admin/website" className="admin-drawer-row" onClick={()=>setMenuOpen(false)}><span>Website management</span><span aria-hidden="true">↗</span></Link><Link href="/super-admin/bulletin" className="admin-drawer-row" onClick={()=>setMenuOpen(false)}><span>Weekly encouragement</span><span aria-hidden="true">↗</span></Link></nav>
+        <section className="admin-drawer-group" aria-label="Account preferences"><p className="admin-drawer-label">PREFERENCES</p>
+          <button className="admin-drawer-row" onClick={toggleTheme} disabled={themeSaving}><span>Appearance<small>{theme==='dark'?'Dark theme':'Light theme'}</small></span><span className="admin-drawer-value">{themeSaving?'Saving…':theme==='dark'?'Use light':'Use dark'}</span></button>
+          <button className="admin-drawer-row" aria-expanded={showDeleteManager} aria-controls="admin-archive-options" onClick={()=>{setShowDeleteManager(!showDeleteManager);setShowSettings(false);}}><span>Cell archive</span><span aria-hidden="true">{showDeleteManager?'−':'+'}</span></button>
+          {showDeleteManager&&<div id="admin-archive-options" className="admin-drawer-subpanel"><p>Archived cells are hidden from the public directory. Their records are kept and can be restored.</p><div className="admin-drawer-archive">{cells.map(c=><div key={c.id}><span>{c.name}<small>{c.isActive?'Active':'Archived'}</small></span><button disabled={changingCellId===c.id} onClick={()=>void setCellActive(c)}>{changingCellId===c.id?'Saving…':c.isActive?'Archive':'Restore'}</button></div>)}</div></div>}
+          <button className="admin-drawer-row" aria-expanded={showSettings} aria-controls="admin-password-options" onClick={()=>{setShowSettings(!showSettings);setShowDeleteManager(false);}}><span>Change password</span><span aria-hidden="true">{showSettings?'−':'+'}</span></button>
+          {showSettings&&<div id="admin-password-options" className="admin-drawer-subpanel"><label htmlFor="admin-new-password">New password</label><input id="admin-new-password" type="password" autoComplete="new-password" value={newPassword} onChange={e=>setNewPassword(e.target.value)}/><label htmlFor="admin-confirm-password">Confirm password</label><input id="admin-confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)}/><button className="admin-primary-link" onClick={changePassword}>Update password</button></div>}
+        </section>
+      </AdminMenuDrawer>}
 
       {showExistingLoginForm && <div role="dialog" aria-modal="true" className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-5">
         <form onSubmit={async(event)=>{event.preventDefault(); await createExistingLeaderLogin();}} className={`${cardBg} w-full max-w-md rounded-[24px] border p-6`}>
@@ -647,15 +646,17 @@ export default function SuperAdmin() {
           </div>
         </form>
       </div>}
-      {showResetPasswordForm && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-5">
+      {showResetPasswordForm && <div role="dialog" aria-modal="true" aria-labelledby="reset-leader-password-title" className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-5">
         <form onSubmit={async(event)=>{event.preventDefault(); await resetLeaderPassword();}} className={`${cardBg} w-full max-w-md rounded-[24px] border p-6`}>
-          <h2 className="font-black text-lg">Issue a New Temporary Password</h2>
+          <h2 id="reset-leader-password-title" className="font-black text-lg">Reset leader password</h2>
           <p className={`${subText} mt-2 text-sm`}>Use this if a leader lost their sign-in details. Their current password will stop working.</p>
           <div className="mt-5 space-y-3">
-            <select value={resetPasswordForm.kind} onChange={event=>setResetPasswordForm({ kind: event.target.value as "cell" | "zone", recordId: "" })} className={`w-full ${inputBg} border p-3 rounded-full text-sm outline-none`}>
+            <label htmlFor="reset-leader-kind" className="block text-xs font-bold">Leader type</label>
+            <select id="reset-leader-kind" disabled={provisioning} value={resetPasswordForm.kind} onChange={event=>setResetPasswordForm({ kind: event.target.value as "cell" | "zone", recordId: "" })} className={`w-full ${inputBg} border p-3 rounded-full text-sm outline-none`}>
               <option value="cell">Cell leader</option><option value="zone">Zone leader</option>
             </select>
-            <select required value={resetPasswordForm.recordId} onChange={event=>setResetPasswordForm({...resetPasswordForm,recordId:event.target.value})} className={`w-full ${inputBg} border p-3 rounded-full text-sm outline-none`}>
+            <label htmlFor="reset-leader-unit" className="block text-xs font-bold">Cell or zone</label>
+            <select id="reset-leader-unit" disabled={provisioning} required value={resetPasswordForm.recordId} onChange={event=>setResetPasswordForm({...resetPasswordForm,recordId:event.target.value})} className={`w-full ${inputBg} border p-3 rounded-full text-sm outline-none`}>
               <option value="">Choose {resetPasswordForm.kind === "cell" ? "a cell" : "a zone"}</option>
               {resetPasswordForm.kind === "cell"
                 ? cells.filter((cell)=>cell.isActive).map((cell)=><option key={cell.id} value={cell.id}>{cell.name} · {cell.leader}</option>)
@@ -665,7 +666,7 @@ export default function SuperAdmin() {
           {provisionError && <p role="alert" className="mt-3 text-sm text-red-300">{provisionError}</p>}
           <div className="mt-4 flex gap-2">
             <button disabled={provisioning} className="flex-1 rounded-full bg-[#cc0000] py-3 text-sm font-bold text-white disabled:opacity-50">{provisioning ? "Resetting…" : "Reset Password"}</button>
-            <button type="button" onClick={()=>setShowResetPasswordForm(false)} className="admin-secondary-link">Cancel</button>
+            <button type="button" disabled={provisioning} onClick={()=>setShowResetPasswordForm(false)} className="admin-secondary-link">Cancel</button>
           </div>
         </form>
       </div>}
@@ -700,12 +701,12 @@ export default function SuperAdmin() {
       </div>}
 
       {selected? (
-        <div className={`min-h-screen ${bg} ${text} p-6 pt-[80px]`}><div className="max-w-5xl mx-auto"><button onClick={()=>setSelected(null)} className="bg-[#222] text-white px-4 py-2 rounded-full text-xs font-bold mb-6">← Back</button>{provisionError && <p role="alert" className="mb-4 text-sm text-red-300">{provisionError}</p>}<div className={`${cardBg} border rounded-[24px] p-6 mb-6`}><h1 className="text-3xl font-black">{selected.name}</h1><p className={`${subText} text-sm mt-1`}>{selected.area} • {selected.leader} • {selected.phone}</p></div><div className={`${cardBg} border rounded-[24px] p-6`}><h2 className="font-bold mb-4">Members ({members.length})</h2>{members.length===0?<p className={`${subText} text-sm`}>No registered members.</p>:members.map((m)=><div key={m.id} className={`${inputBg} border p-3 rounded-xl text-xs mb-2`}><b>{m.name}</b> • {m.gender} • {m.age}y</div>)}</div></div></div>
+        <div className={`min-h-screen ${bg} ${text} p-6 pt-[80px]`}><div className="max-w-5xl mx-auto"><button onClick={()=>setSelected(null)} className="bg-[#222] text-white px-4 py-2 rounded-full text-xs font-bold mb-6">← Back</button>{provisionError && <p role="alert" className="mb-4 text-sm text-red-300">{provisionError}</p>}<div className={`${cardBg} border rounded-[24px] p-6 mb-6`}><h1 className="text-3xl font-black">{selected.name}</h1><p className={`${subText} text-sm mt-1`}>{selected.area} • {selected.leader} • {selected.phone}</p></div><div className={`${cardBg} border rounded-[24px] p-6`}><h2 className="font-bold mb-4">Active members ({members.length})</h2>{members.length===0?<p className={`${subText} text-sm`}>No active members.</p>:members.map((m)=><div key={m.id} className={`${inputBg} border p-3 rounded-xl text-xs mb-2`}><b>{m.name}</b> • {m.gender} • {m.age}y</div>)}</div></div></div>
       ) : (
         <div className={`min-h-screen ${bg} ${text} p-6 pt-[80px]`}><div className="max-w-6xl mx-auto">
           <div className="admin-page-heading">
             <div><p className="admin-eyebrow">Church administration</p><h1>Super Admin Dashboard</h1><p className="admin-description">Manage your church, support your leaders, and review ministry progress.</p></div>
-            <div className="admin-quick-actions"><Link href="/super-admin/reports" className="admin-primary-link">Reports &amp; backups <span aria-hidden="true">↗</span></Link><Link href="/super-admin/website" className="admin-secondary-link">Manage website <span aria-hidden="true">↗</span></Link></div>
+            <div className="admin-quick-actions"><Link href="/super-admin/members" className="admin-secondary-link">Church membership <span aria-hidden="true">↗</span></Link><Link href="/super-admin/reports" className="admin-primary-link">Reports &amp; backups <span aria-hidden="true">↗</span></Link><Link href="/super-admin/website" className="admin-secondary-link">Manage website <span aria-hidden="true">↗</span></Link><Link href="/super-admin/bulletin" className="admin-secondary-link">Weekly encouragement <span aria-hidden="true">↗</span></Link></div>
           </div>
           <nav id="admin-tabs" className="admin-navigation" aria-label="Dashboard sections">
             {([{id:"overview",label:"Overview"},{id:"cells",label:"Cells"},{id:"zones",label:"Zones"},{id:"accounts",label:"Leader accounts"},{id:"requests",label:"Requests"}] as const).map(item=><button key={item.id} aria-current={tab===item.id?"page":undefined} onClick={()=>{setTab(item.id);setShowCreateForm(false);setSearch("");}}>{item.label}{item.id==="requests"&&pendingRequests.length+pendingJoinRequests.length+pendingMinistryCount+pendingCareCount>0&&<span className="admin-count">{pendingRequests.length+pendingJoinRequests.length+pendingMinistryCount+pendingCareCount}</span>}</button>)}
@@ -715,7 +716,7 @@ export default function SuperAdmin() {
           {tab==="accounts"&&<SecretaryAccountManager/>}
           <MinistryRequestInbox visible={tab==="overview"||tab==="requests"} onPendingCountChange={setPendingMinistryCount}/>
           {tab==="overview"&&<>
-          <RegionalCellReports/><ZoneReportInbox/>
+          <ZoneEscalationInbox/><RegionalCellReports/><ZoneReportInbox/>
           <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Church operations summary">
             {[
               { label: "Active zones", value: zones.filter((zone) => zone.isActive).length, accent: "admin-metric-value" },
@@ -761,7 +762,7 @@ export default function SuperAdmin() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h2 id="new-login-heading" className="font-bold text-green-200">{issuedCredentials.purpose === "reactivated" ? `${issuedCredentials.name} leader login reactivated` : issuedCredentials.purpose === "reset" ? `${issuedCredentials.name} leader password reset` : `${issuedCredentials.name} and leader login created`}</h2>
-                <p className="mt-1 text-xs text-gray-300">Give these sign-in details privately to the leader. The temporary password will only be shown here once.</p>
+                <p className="mt-1 text-xs text-gray-300">Give these sign-in details privately to the leader. These details are cleared when you dismiss this panel or leave the page.</p>
                 {issuedCredentials.notification&&<p role="status" className="mt-2 text-sm">{issuedCredentials.notification.message}</p>}
               </div>
               <button onClick={()=>setIssuedCredentials(null)} className="rounded-full bg-white/10 px-4 py-2 text-xs font-bold">Done</button>
@@ -776,7 +777,7 @@ export default function SuperAdmin() {
           <section className={`${cardBg} border rounded-[24px] p-5 mb-6`}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div><h2 className="font-bold">Account management</h2><p className={`${subText} mt-1 text-xs`}>Manage sign-in access for your cell and zone leaders.</p></div>
-              <div className="flex flex-wrap gap-2"><button onClick={()=>{setProvisionError("");setShowExistingLoginForm(true);}} className="rounded-full bg-[#222] px-5 py-3 text-xs font-bold text-white">Add leader account</button><button onClick={()=>{setProvisionError("");setShowResetPasswordForm(true);}} className="rounded-full bg-[#222] px-5 py-3 text-xs font-bold text-white">Reset leader password</button></div>
+              <div className="flex flex-wrap gap-2"><button onClick={()=>{setProvisionError("");setShowExistingLoginForm(true);}} className="rounded-full bg-[#222] px-5 py-3 text-xs font-bold text-white">Add leader account</button><button onClick={()=>{setProvisionError("");setIssuedCredentials(null);setResetPasswordForm({kind:"cell",recordId:""});setShowResetPasswordForm(true);}} className="rounded-full bg-[#222] px-5 py-3 text-xs font-bold text-white">Reset leader password</button></div>
             </div>
           </section>
           <section id="leader-access-section" className={`${cardBg} border rounded-[24px] p-5 mb-6 scroll-mt-20`} aria-labelledby="leader-access-heading">
@@ -799,6 +800,7 @@ export default function SuperAdmin() {
                   return <div key={account.user_id} className={`${inputBg} border p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs`}>
                     <div><b>{account.display_name || account.username}</b><p className={`${subText} mt-1`}>{kind === "zone" ? "Zone" : "Cell"}: {unitName} · {account.username} · {account.is_suspended ? "Suspended" : "Active"}</p></div>
                     <div className="flex flex-wrap gap-2">
+                      <button disabled={!recordId||account.is_suspended||provisioning||changingLeaderKey===busyKey} onClick={()=>{setProvisionError('');setIssuedCredentials(null);setResetPasswordForm({kind,recordId:String(recordId)});setShowResetPasswordForm(true);}} className="admin-secondary-link disabled:opacity-50" aria-label={`Reset password for ${account.display_name||account.username}`}>Reset password</button>
                       <button disabled={!recordId || changingEmail} onClick={()=>openLeaderEmailChange(account)} className="rounded-full bg-blue-900/60 px-4 py-2 text-[10px] font-bold text-blue-200 disabled:opacity-50">Change email</button>
                       <button disabled={account.is_suspended||notifyingLeader!==null} onClick={()=>void notifyLeader(account.user_id)} className="admin-secondary-link disabled:opacity-50">{notifyingLeader===account.user_id?"Sending…":"Send assignment email"}</button>
                       <button disabled={!recordId || changingLeaderKey === busyKey} onClick={()=>void setLeaderLoginSuspended(account)} className={`rounded-full px-4 py-2 text-[10px] font-bold disabled:opacity-50 ${account.is_suspended ? "bg-green-900/60 text-green-200" : "bg-red-900/60 text-red-200"}`}>
@@ -813,10 +815,23 @@ export default function SuperAdmin() {
           {tab==="requests"&&<section id="join-request-oversight" className={`${cardBg} border rounded-[24px] p-6 mb-6 scroll-mt-20`} aria-labelledby="oversight-requests-heading">
             <h2 id="oversight-requests-heading" className="font-bold mb-4">Membership requests · {joinRequests.length}</h2>
             {joinRequests.length === 0 ? <p className={`${subText} text-sm`}>No join requests.</p> : <div className="space-y-2 max-h-80 overflow-auto">
-              {joinRequests.map((request)=><div key={request.id} className={`${inputBg} border p-3 rounded-xl text-xs`}>
-                <b>{request.name}</b> · {request.gender} · {request.age} · {request.phone}
-                <p className={`${subText} mt-1`}>{request.cells?.[0]?.name ?? `Cell ${request.cell_id}`} · {request.status} · {new Date(request.created_at).toLocaleDateString()}</p>
-              </div>)}
+              {joinRequests.map((request)=>{
+                const destination=cells.find(c=>c.id===Number(request.cell_id));
+                const zone=zones.find(z=>z.id===destination?.zoneId);
+                const leaderPhone=destination?.phone?.trim();
+                return <article key={request.id} className={`${inputBg} border p-4 rounded-xl text-xs`}>
+                  <div className="flex flex-wrap justify-between gap-2"><b>{request.name}</b><span className="font-bold capitalize">{request.status}</span></div>
+                  <p className={`${subText} mt-1`}>{request.gender} · {request.age} years · {request.phone}</p>
+                  <div className="mt-3 border-t border-current/10 pt-3 space-y-1">
+                    <p className="text-sm font-bold">Sent to: {destination?.name ?? `Cell #${request.cell_id} (details unavailable)`}</p>
+                    {destination&&<p className={subText}>{destination.area}{zone?` · ${zone.name}`:''}{!destination.isActive?' · Archived cell':''}</p>}
+                    <p>Cell leader: <strong>{destination?.leader||'Not recorded'}</strong></p>
+                    <p>Leader phone: {leaderPhone||'Not recorded'}</p>
+                    <p className={subText}>Received {new Date(request.created_at).toLocaleString('en-GB',{timeZone:'Africa/Lusaka'})} · Lusaka time</p>
+                  </div>
+                  {request.status==='pending'&&<div className="mt-3 flex flex-wrap items-center gap-3">{leaderPhone?<a href={`tel:${leaderPhone.replace(/[^+\d]/g,'')}`} className="admin-secondary-link" aria-label={`Call ${destination?.leader||'cell leader'} about ${destination?.name||'this cell'}`}>Call cell leader ↗</a>:<p className={subText}>Add the leader’s phone in the cell directory to enable follow-up calls.</p>}<span className={subText}>Awaiting the cell leader’s decision</span></div>}
+                </article>;
+              })}
             </div>}
           </section>}
           {(tab==="cells"||tab==="zones")&&<div className="admin-section-toolbar"><div><h2>{tab==="cells"?"Cell directory":"Zones"}</h2><p>{tab==="cells"?"Browse cells and their assigned leaders.":"Organize zones and manage their status."}</p></div><div className="admin-toolbar-actions">{tab==="cells"&&<input aria-label="Search cells" placeholder="Search cells, areas or leaders" value={search} onChange={e=>setSearch(e.target.value)} className={inputBg}/>}<button className="admin-primary-link" onClick={()=>setShowCreateForm(value=>!value)}>{showCreateForm?"Cancel":tab==="cells"?"Create cell":"Create zone"}</button></div></div>}

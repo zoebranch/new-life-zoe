@@ -12,6 +12,9 @@ import "./church-care.css";
 import "./monthly-theme.css";
 import "./animated-cards.css";
 import "./home-responsive.css";
+import "./care-refresh.css";
+import "./church-announcements.css";
+import "./home-bulletin-preview.css";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,12 +67,13 @@ export default function Home() {
     <section id="church-care" className="home-section home-church-care" aria-labelledby="church-care-heading"><div className="home-wrap">
       <div className="home-section-heading"><div><p className="home-eyebrow">FOR OUR CHURCH MEMBERS</p><h2 id="church-care-heading">Prayer &amp; Church Care</h2></div><button type="button" className="home-expand-button" aria-expanded={careOpen} aria-controls="homepage-care-options" onClick={()=>setCareOpen(value=>!value)}>{careOpen ? "Hide care options −" : "Open church care +"}</button></div>
       <div id="homepage-care-options" hidden={!careOpen}>
+      <p className="home-care-intro">A little support, whenever you need it. How can we help?</p>
       <div className="home-care-grid">
-        <Link href="/care?request=prayer" className="home-care-card"><span className="home-care-number" aria-hidden="true">01</span><h3>Request prayer</h3><p>Send a private prayer request to your cell leader using your registered name and phone.</p><span className="home-care-action">Send a prayer request <span aria-hidden="true">↗</span></span></Link>
-        <Link href="/care?request=bereavement" className="home-care-card"><span className="home-care-number" aria-hidden="true">02</span><h3>Report a bereavement</h3><p>Let us know about a loss so the church can offer support.</p><span className="home-care-action">Contact the care team <span aria-hidden="true">↗</span></span></Link>
-        <Link href="/care?request=newborn" className="home-care-card"><span className="home-care-number" aria-hidden="true">03</span><h3>Welcome a newborn</h3><p>Share the good news and discuss a church announcement.</p><span className="home-care-action">Share family news <span aria-hidden="true">↗</span></span></Link>
-        <Link href="/care?request=hospital" className="home-care-card"><span className="home-care-number" aria-hidden="true">04</span><h3>Hospital admission</h3><p>Let us know someone needs prayer, a visit, or practical support.</p><span className="home-care-action">Request church support <span aria-hidden="true">↗</span></span></Link>
-        <Link href="/care?request=other" className="home-care-card"><span className="home-care-number" aria-hidden="true">05</span><h3>Other care concern</h3><p>Report an accident or anything else the church should know about and offer support for.</p><span className="home-care-action">Tell the secretary <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=prayer" className="home-care-card"><span className="home-care-number" aria-hidden="true">01</span><h3>Request prayer</h3><p>Share a prayer with your cell leader.</p><span className="home-care-action">Send a prayer request <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=bereavement" className="home-care-card"><span className="home-care-number" aria-hidden="true">02</span><h3>Bereavement support</h3><p>Let us walk with your family through loss.</p><span className="home-care-action">Contact the care team <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=newborn" className="home-care-card"><span className="home-care-number" aria-hidden="true">03</span><h3>Welcome a newborn</h3><p>Celebrate a new arrival with us.</p><span className="home-care-action">Share family news <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=hospital" className="home-care-card"><span className="home-care-number" aria-hidden="true">04</span><h3>Hospital admission</h3><p>Ask for prayer, a visit, or support.</p><span className="home-care-action">Request church support <span aria-hidden="true">↗</span></span></Link>
+        <Link href="/care?request=other" className="home-care-card"><span className="home-care-number" aria-hidden="true">05</span><h3>Other care concern</h3><p>Tell us about anything else you need help with.</p><span className="home-care-action">Tell the secretary <span aria-hidden="true">↗</span></span></Link>
       </div><p className="home-care-private">Your submission is private. Nothing is published automatically, and no account is needed.</p></div>
     </div></section>
     <section id="evangelism" className="home-section home-mission">

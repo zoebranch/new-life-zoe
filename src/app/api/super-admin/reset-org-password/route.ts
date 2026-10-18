@@ -76,5 +76,5 @@ export async function POST(request: Request) {
     role,
     recordId,
     activityLogged,
-  });
+  },{headers:{"Cache-Control":"no-store"}});
 }

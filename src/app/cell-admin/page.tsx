@@ -12,6 +12,10 @@ import { useRouter } from "next/navigation";
 import type { Cell } from "@/data/cells";
 import { createClient } from "@/lib/supabase/client";
 import { mapCell } from "@/lib/church-data";
+import CellReportFeedbackInbox from "@/components/report-feedback";
+import CellMemberRegister from "@/components/cell-member-register";
+import CellJoinInvitation from "@/components/cell-join-invitation";
+import OutreachLeaderPanel from '@/components/outreach-leader-panel';
 import CellPrayerInbox from "@/components/cell-prayer-inbox";
 
 type CellLeaderAuth = {
@@ -96,6 +100,7 @@ export default function CellAdmin() {
   const router = useRouter();
   const [auth, setAuth] = useState<CellLeaderAuth | null>(null);
   const [myCell, setMyCell] = useState<Cell | null>(null);
+  const [memberRevision,setMemberRevision]=useState(0);
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [evangelismLogs, setEvangelismLogs] = useState<Evangelism[]>([]);
@@ -136,7 +141,7 @@ export default function CellAdmin() {
           .select("id,name,gender,age,phone,status,created_at")
           .eq("cell_id", profile.cell_id).order("created_at", { ascending: false }).order("id").range(from,to)),
         fetchAllRows((from,to) => supabase.from("members")
-          .select("id,cell_id,name,gender,age,phone,area,joined_at")
+          .select("id,cell_id,name,gender,age,phone,area,joined_at").eq("is_active",true)
           .eq("cell_id", profile.cell_id).order("name").order("id").range(from,to)),
         supabase.from("cells").select("id,zone_id,name,area,leader,phone,meeting_day,meeting_time,reported_member_count")
           .eq("id", profile.cell_id).maybeSingle(),
@@ -181,7 +186,7 @@ export default function CellAdmin() {
     }
     void loadDashboard();
     return () => { active = false; };
-  },[router, revision]);
+  },[router, revision,memberRevision]);
 
   const reviewJoinRequest = async (id: string, approve: boolean) => {
     if (!auth?.cell_id) {
@@ -203,7 +208,7 @@ export default function CellAdmin() {
     const [requestsResult, membersResult] = await Promise.all([
       fetchAllRows((from,to) => supabase.from("member_join_requests").select("id,name,gender,age,phone,status,created_at")
         .eq("cell_id", auth.cell_id).order("created_at", { ascending: false }).order("id").range(from,to)),
-      fetchAllRows((from,to) => supabase.from("members").select("id,cell_id,name,gender,age,phone,area,joined_at")
+      fetchAllRows((from,to) => supabase.from("members").select("id,cell_id,name,gender,age,phone,area,joined_at").eq("is_active",true)
         .eq("cell_id", auth.cell_id).order("name").order("id").range(from,to)),
     ]);
     if (requestsResult.error) setRequestError("The request was reviewed, but the list couldn't refresh.");
@@ -297,6 +302,7 @@ export default function CellAdmin() {
       gender: data.gender, age: data.age, phone: data.phone,
       area: data.area, joinedAt: data.joined_at,
     }]);
+    setMemberRevision(v=>v+1);
     setForm({ name:"", gender:"Male", age:"", phone:"", area:"" });
     alert("Member added to the church records.");
   };
@@ -415,12 +421,15 @@ export default function CellAdmin() {
         <p className="text-sm text-gray-400 mb-2">{myCell?.area} · {myCell?.meetingDay} · {myCell?.meetingTime}</p>
         {reportError && <p role="alert" className="mb-4 rounded-xl border border-red-900 bg-red-950/40 p-3 text-sm text-red-300">{reportError}</p>}
         <div className="cell-dashboard-summary">
-          <div><span>Registered members</span><strong>{myMembers.length}</strong><small>{stats.male} men · {stats.female} women</small></div>
+          <div><span>Active members</span><strong>{myMembers.length}</strong><small>{stats.male} men · {stats.female} women</small></div>
           <div><span>Reports submitted</span><strong>{myLogs.length}</strong><small>{stats.thisMonthLogs.length} this month</small></div>
           <div><span>Pending requests</span><strong>{joinRequests.filter(request=>request.status==="pending").length}</strong><small>People waiting to join your cell</small></div>
         </div>
+        {myCell&&<CellJoinInvitation cellId={myCell.id} cellName={myCell.name}/>}
         <nav className="cell-dashboard-nav" aria-label="Dashboard sections"><a href="#cell-overview">Overview</a><a href="#cell-prayer-requests">Prayer requests</a><a href="#join-requests-heading">Join requests</a><a href="#cell-members">Members</a><a href="#submit-cell-report">Submit report</a><a href="#cell-report-history">Report history</a></nav>
 
+        {myCell&&<CellReportFeedbackInbox cellId={myCell.id} onEdit={id=>{const report=myLogs.find(r=>r.id===id);if(report)editReport(report);else setReportError("This report could not be opened. Refresh the dashboard and try again.");}}/>}
+        {myCell&&<OutreachLeaderPanel cellId={myCell.id} onMemberSaved={()=>setMemberRevision(v=>v+1)}/>}
         <CellPrayerInbox/>
         <section className="bg-[#151515] border border-[#222] rounded-[24px] p-6 mb-6" aria-labelledby="join-requests-heading">
           <div className="flex items-center justify-between gap-4 mb-4">
@@ -478,10 +487,8 @@ export default function CellAdmin() {
             <h2 id="cell-members" className="font-bold mb-4">Add a member</h2>
             <div className="space-y-3"><label className="cell-input-label"><span>Full Name</span><input placeholder="Full Name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="w-full bg-[#0a0a0a] border border-[#222] p-3 rounded-full text-sm"/></label><div className="flex gap-2"><select value={form.gender} onChange={e=>setForm({...form,gender:e.target.value})} className="w-1/2 bg-[#0a0a0a] border border-[#222] p-3 rounded-full text-sm"><option>Male</option><option>Female</option></select><label className="cell-input-label"><span>Age</span><input placeholder="Age" type="number" value={form.age} onChange={e=>setForm({...form,age:e.target.value})} className="w-1/2 bg-[#0a0a0a] border border-[#222] p-3 rounded-full text-sm"/></label></div><label className="cell-input-label"><span>Phone</span><input placeholder="Phone" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} className="w-full bg-[#0a0a0a] border border-[#222] p-3 rounded-full text-sm"/></label><button disabled={savingMember} onClick={()=>void addMember()} className="w-full bg-[#cc0000] py-3 rounded-full font-black text-sm disabled:opacity-50">{savingMember ? "Saving…" : "Add Member"}</button></div>
 
-            <h3 className="font-bold mt-6 mb-3">Members ({myMembers.length})</h3>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-              {myMembers.length===0? <p className="text-gray-500 text-xs">No members yet</p> : myMembers.map((member)=><div key={member.id} className="bg-[#0a0a0a] border border-[#222] p-3 rounded-xl text-xs"><div className="flex justify-between"><span className="font-bold">{member.name}</span><span className="text-[10px] bg-[#222] px-2 py-1 rounded-full">{member.gender} • {member.age}y</span></div><div className="flex justify-between mt-1 text-gray-400"><span>📞 {member.phone || 'No phone'}</span><span>{new Date(member.joinedAt).toLocaleDateString()}</span></div></div>)}
-            </div>
+            {myCell&&<CellMemberRegister cellId={myCell.id} revision={memberRevision+myMembers.length} onSaved={()=>setMemberRevision(v=>v+1)}/>}
+
           </div>
 
           <div className="bg-[#151515] border border-[#222] rounded-[24px] p-6 h-fit">

@@ -3,6 +3,9 @@ import {fetchAllRows} from "@/lib/fetch-all-rows";
 import {useDashboardRefresh} from "@/lib/use-dashboard-refresh";
 import { useState, useEffect, useMemo } from "react";
 import { hasEvangelismActivity, mapReportDetails, type ReportDetails } from "@/lib/report-details";
+import ZoneOperations from "@/components/zone-operations";
+import ZoneLeaderContacts from "@/components/zone-leader-contacts";
+import ZoneSummaryReport from "@/components/zone-summary-report";
 import ZoneWeeklyReview, {currentWeek} from "@/components/zone-weekly-review";
 import "./dashboard.css";
 import { SiteImage } from "@/components/site-image";
@@ -90,10 +93,12 @@ export default function ZoneLeader() {
   const [confirmPass, setConfirmPass] = useState("");
   const [detailTab, setDetailTab] = useState<"attendance" | "evangelism">("attendance");
   const [dashboardError, setDashboardError] = useState("");
+  const [dashboardReady,setDashboardReady]=useState(false);
 
   useEffect(() => {
     let active = true;
     async function loadDashboard() {
+      setDashboardReady(false);
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace("/leaders"); return; }
@@ -118,11 +123,11 @@ export default function ZoneLeader() {
       const cellIds = zoneCells.map((cell) => cell.id);
       if (cellIds.length) {
         const [memberRows, attendanceRows, evangelismRows] = await Promise.all([
-          fetchAllRows((from,to) => supabase.from("members").select("id,cell_id,name,gender,age,phone,area,joined_at")
+          fetchAllRows((from,to) => supabase.from("members").select("id,cell_id,name,gender,age,phone,area,joined_at").eq("is_active",true)
             .in("cell_id", cellIds).order("name").order("id").range(from,to)),
           fetchAllRows((from,to) => supabase.from("attendance_reports").select("*")
             .in("cell_id", cellIds).order("report_date", { ascending: false }).order("id").range(from,to)),
-          fetchAllRows((from,to) => supabase.from("evangelism_reports").select("id,cell_id,report_date,people_reached,tracts,souls_won,team_count,contacts,notes")
+          fetchAllRows((from,to) => supabase.from("evangelism_reports").select("id,cell_id,report_date,people_reached,tracts,souls_won,team_count,contacts,notes,review_version")
             .in("cell_id", cellIds).order("report_date", { ascending: false }).order("id").range(from,to)),
         ]);
         if (!active) return;
@@ -153,6 +158,7 @@ export default function ZoneLeader() {
         setAttendance([]);
         setEvangelismLogs([]);
       }
+      if(active)setDashboardReady(true);
     }
     void loadDashboard();
     return () => { active = false; };
@@ -386,6 +392,9 @@ export default function ZoneLeader() {
       <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pt-[80px]"><div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-black mb-6">{zone?.name} · Zone dashboard</h1>
         {dashboardError && <p role="alert" className="mb-4 rounded-xl border border-red-900 bg-red-950/40 p-3 text-sm text-red-300">{dashboardError}</p>}
+        {auth&&<ZoneOperations zoneId={auth.zone_id} cells={cells} leaderName={auth.display_name||auth.username}/>}
+        <ZoneLeaderContacts cells={cells}/>
+        <ZoneSummaryReport zoneName={zone?.name??"Zone"} cells={cells} reports={attendance} outreach={evangelismLogs} members={members} unavailable={!dashboardReady||!!dashboardError}/>
         <ZoneWeeklyReview cells={cells} reports={attendance} outreach={evangelismLogs} from={startDate} to={endDate} onWeekChange={(from,to)=>{setStartDate(from);setEndDate(to);}}/>
         <div className="bg-[#151515] border border-[#222] rounded-[24px] p-5 mb-6">
           <div className="flex gap-3 mb-4 flex-wrap"><button onClick={()=>setShowRequest(true)} className="ml-auto bg-[#cc0000] px-5 py-2 rounded-full text-xs font-bold">➕ Request Cell</button></div>

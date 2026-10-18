@@ -1,4 +1,5 @@
 export type ReportDetails = {
+  reviewVersion: number;
   men: number | null; women: number | null; children: number | null;
   visitorDetails: string; followUp: string; evangelismLocation: string;
   challenges: string; prayerRequests: string; submittedAt: string; submittedBy: string;
@@ -16,6 +17,7 @@ export function hasEvangelismActivity(report: {
 export function mapReportDetails(row: Record<string, unknown>): ReportDetails {
   const count = (key: string) => row[key] == null ? null : Number(row[key]);
   return {
+    reviewVersion:Number(row.review_version??1),
     men: count("attendance_men"), women: count("attendance_women"), children: count("attendance_children"),
     visitorDetails: String(row.visitor_details ?? ""), followUp: String(row.follow_up ?? ""),
     evangelismLocation: String(row.evangelism_location ?? ""), challenges: String(row.challenges ?? ""),
