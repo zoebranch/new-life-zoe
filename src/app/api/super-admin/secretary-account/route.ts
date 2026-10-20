@@ -11,7 +11,7 @@ export async function POST(request:Request){
  if(!["create","reset","suspend","activate"].includes(action))return NextResponse.json({error:"Choose a valid account action"},{status:400});
  const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.SUPABASE_SECRET_KEY??process.env.SUPABASE_SERVICE_ROLE_KEY;
  if(!url||!key)return NextResponse.json({error:"Server setup incomplete"},{status:503});
- const admin=createAdmin(url,key,{auth:{persistSession:false,autoRefreshToken:false}}),email="newlifezoe2@gmail.com",name="Theresa Njope";
+ const admin=createAdmin(url,key,{auth:{persistSession:false,autoRefreshToken:false}}),email="newlifezoe2@gmail.com",name="Theresa Njoope";
  const{data:existing,error:existingError}=await admin.from("profiles").select("user_id,role,is_suspended").eq("username",email).maybeSingle();
  if(existingError)return NextResponse.json({error:"Account details could not be read"},{status:500});
  if(existing&&existing.role!=="secretary")return NextResponse.json({error:"This email already belongs to another role. Use a separate secretary email."},{status:409});
